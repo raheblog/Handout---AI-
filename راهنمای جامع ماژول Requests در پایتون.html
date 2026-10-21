@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مستندات جامع کتابخانه Requests در پایتون</title>
+    <!-- فونت وزیرمتن برای فارسی و جت‌برینز مونو برای کدها -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Vazirmatn:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-sidebar: #0f172a;
+            --bg-code: #1e293b;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --text-sidebar: #e2e8f0;
+            --primary: #2563eb;
+            --primary-light: #dbeafe;
+            --accent: #0ea5e9;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.8;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* نوار کناری (Sidebar) */
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            color: var(--text-sidebar);
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            z-index: 100;
+            border-left: 1px solid #334155;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #fff;
+        }
+
+        .brand-text h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .nav-list a {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 0.65rem 1rem;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            font-weight: 500;
+            display: block;
+            transition: all 0.2s ease;
+        }
+
+        .nav-list a:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            transform: translateX(-4px);
+        }
+
+        /* محتوای اصلی */
+        .main-content {
+            margin-right: 280px;
+            flex: 1;
+            padding: 3rem 4rem;
+            max-width: 1100px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a, #0f172a);
+            color: #fff;
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero h2 {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero p {
+            color: #cbd5e1;
+            font-size: 1.05rem;
+            max-width: 700px;
+        }
+
+        /* کارت‌های سکشن */
+        .doc-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .doc-section h3 {
+            font-size: 1.4rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .doc-section p {
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+
+        /* باکس کد (چپ‌چین) */
+        .code-wrapper {
+            position: relative;
+            margin: 1.25rem 0;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .code-header {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 0.5rem 1rem;
+            border-radius: 10px 10px 0 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #e2e8f0;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 0.75rem;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        pre {
+            background-color: var(--bg-code);
+            color: #f8fafc;
+            padding: 1.25rem;
+            border-radius: 0 0 10px 10px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* رنگ‌بندی سینتکس ساده */
+        .kw { color: #c084fc; font-weight: 500; } /* کلیدواژه */
+        .fn { color: #60a5fa; } /* تابع */
+        .str { color: #86efac; } /* رشته */
+        .cm { color: #64748b; font-style: italic; } /* کامنت */
+        .num { color: #fbbf24; } /* عدد */
+
+        /* بج متدهای HTTP */
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1rem;
+            margin: 1.25rem 0;
+        }
+
+        .method-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            background: #f8fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-get { background: #dcfce7; color: #15803d; }
+        .badge-post { background: #dbeafe; color: #1d4ed8; }
+        .badge-put { background: #fef3c7; color: #b45309; }
+        .badge-delete { background: #fee2e2; color: #b91c1c; }
+
+        /* جدول */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.25rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        td code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.45rem;
+            border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #0f172a;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        /* باکس نکته */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            border-right: 4px solid var(--primary);
+            background-color: #eff6ff;
+            font-size: 0.95rem;
+        }
+
+        .alert-warning {
+            border-right-color: var(--warning);
+            background-color: #fffbeb;
+        }
+
+        /* واکنش‌گرا برای موبایل */
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                position: relative;
+                width: 100%;
+                border-left: none;
+                border-bottom: 1px solid #334155;
+            }
+            .main-content {
+                margin-right: 0;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- منوی کناری -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">R</div>
+            <div class="brand-text">
+                <h1>Requests</h1>
+                <span>مستندات فارسی پایتون</span>
+            </div>
+        </div>
+        <ul class="nav-list">
+            <li><a href="#install">۱. معرفی و نصب</a></li>
+            <li><a href="#methods">۲. متدهای اصلی HTTP</a></li>
+            <li><a href="#params">۳. ارسال پارامتر در URL</a></li>
+            <li><a href="#response">۴. بررسی محتوای پاسخ</a></li>
+            <li><a href="#json-post">۵. ارسال داده و JSON</a></li>
+            <li><a href="#headers">۶. هدرها و احراز هویت</a></li>
+            <li><a href="#timeout-errors">۷. مدیریت زمان و خطاها</a></li>
+            <li><a href="#session">۸. استفاده از Session</a></li>
+        </ul>
+    </aside>
+
+    <!-- محتوای اصلی -->
+    <main class="main-content">
+        
+        <header class="hero">
+            <span class="hero-badge">HTTP for Humans™</span>
+            <h2>راهنمای جامع ماژول Requests در پایتون</h2>
+            <p>کتابخانه Requests محبوب‌ترین و ساده‌ترین ابزار پایتون برای ارسال درخواست‌های HTTP و ارتباط با وب‌سرویس‌ها (REST APIs) است.</p>
+        </header>
+
+        <!-- ۱. نصب -->
+        <section id="install" class="doc-section">
+            <h3>۱. نصب و راه‌اندازی</h3>
+            <p>برای نصب کتابخانه Requests، در ترمینال یا خط فرمان سیستم خود دستور زیر را اجرا کنید:</p>
+            
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>bash</span>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code>pip install requests</code></pre>
+            </div>
+        </section>
+
+        <!-- ۲. متدهای اصلی -->
+        <section id="methods" class="doc-section">
+            <h3>۲. متدهای اصلی HTTP</h3>
+            <p>چهار عملیات اصلی ارتباط با سرور (CRUD) در این ماژول مستقیماً با توابع هم‌نام فراخوانی می‌شوند:</p>
+
+            <div class="method-grid">
+                <div class="method-card">
+                    <span class="badge badge-get">GET</span>
+                    <p>دریافت اطلاعات از سرور</p>
+                </div>
+                <div class="method-card">
+                    <span class="badge badge-post">POST</span>
+                    <p>ایجاد یا ارسال داده جدید</p>
+                </div>
+                <div class="method-card">
+                    <span class="badge badge-put">PUT</span>
+                    <p>بروزرسانی کامل اطلاعات</p>
+                </div>
+                <div class="method-card">
+                    <span class="badge badge-delete">DELETE</span>
+                    <p>حذف یک منبع از سرور</p>
+                </div>
+            </div>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">import</span> requests
+
+<span class="cm"># ارسال درخواست GET</span>
+response = requests.<span class="fn">get</span>(<span class="str">"https://api.github.com/events"</span>)
+
+<span class="cm"># سایر متدها</span>
+requests.<span class="fn">post</span>(<span class="str">"https://httpbin.org/post"</span>, data={<span class="str">"key"</span>: <span class="str">"value"</span>})
+requests.<span class="fn">put</span>(<span class="str">"https://httpbin.org/put"</span>, data={<span class="str">"key"</span>: <span class="str">"value"</span>})
+requests.<span class="fn">delete</span>(<span class="str">"https://httpbin.org/delete"</span>)</code></pre>
+            </div>
+        </section>
+
+        <!-- ۳. پارامترها -->
+        <section id="params" class="doc-section">
+            <h3>۳. ارسال پارامتر در URL (Query Strings)</h3>
+            <p>به‌جای چسباندن دستی علامت سؤال و مقادیر به انتهای آدرس، یک دیکشنری به آرگومان <code>params</code> بدهید تا به‌صورت استاندارد کدگذاری (URL-Encode) شود:</p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">import</span> requests
+
+query_params = {
+    <span class="str">"q"</span>: <span class="str">"python requests"</span>,
+    <span class="str">"page"</span>: <span class="num">2</span>
+}
+
+response = requests.<span class="fn">get</span>(<span class="str">"https://httpbin.org/get"</span>, params=query_params)
+
+<span class="fn">print</span>(response.url)
+<span class="cm"># خروجی: https://httpbin.org/get?q=python+requests&page=2</span></code></pre>
+            </div>
+        </section>
+
+        <!-- ۴. بررسی پاسخ -->
+        <section id="response" class="doc-section">
+            <h3>۴. بررسی محتوای پاسخ (Response Object)</h3>
+            <p>وقتی درخواستی ارسال می‌کنید، یک شیء <code>Response</code> برگردانده می‌شود که تمام اطلاعات پاسخ سرور را در خود دارد:</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ویژگی / متد</th>
+                            <th>کاربرد</th>
+                            <th>نوع خروجی</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>response.status_code</code></td>
+                            <td>کد وضعیت HTTP (مثل 200، 404، 500)</td>
+                            <td>عدد صحیح (int)</td>
+                        </tr>
+                        <tr>
+                            <td><code>response.text</code></td>
+                            <td>محتوای متنی پاسخ (مناسب برای HTML یا متن)</td>
+                            <td>رشته (str)</td>
+                        </tr>
+                        <tr>
+                            <td><code>response.json()</code></td>
+                            <td>تبدیل خودکار پاسخ JSON به دیکشنری پایتون</td>
+                            <td>دیکشنری یا لیست</td>
+                        </tr>
+                        <tr>
+                            <td><code>response.content</code></td>
+                            <td>محتوای باینری خام (مناسب برای دانلود عکس و فایل)</td>
+                            <td>بایت (bytes)</td>
+                        </tr>
+                        <tr>
+                            <td><code>response.headers</code></td>
+                            <td>مشاهده هدرهای بازگشتی از سمت سرور</td>
+                            <td>دیکشنری</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ۵. ارسال JSON -->
+        <section id="json-post" class="doc-section">
+            <h3>۵. ارسال داده و JSON در متد POST</h3>
+            <p>برای ارسال داده به APIهای مدرن، استفاده از آرگومان <code>json</code> بهترین روش است؛ زیرا علاوه‌بر تبدیل دیکشنری به رشته JSON، هدر <code>Content-Type: application/json</code> را نیز خودکار تنظیم می‌کند.</p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">import</span> requests
+
+payload = {
+    <span class="str">"username"</span>: <span class="str">"ali_dev"</span>,
+    <span class="str">"role"</span>: <span class="str">"admin"</span>
+}
+
+response = requests.<span class="fn">post</span>(<span class="str">"https://httpbin.org/post"</span>, json=payload)
+
+<span class="kw">if</span> response.status_code == <span class="num">200</span>:
+    data = response.<span class="fn">json</span>()
+    <span class="fn">print</span>(data[<span class="str">"json"</span>])</code></pre>
+            </div>
+        </section>
+
+        <!-- ۶. هدرها -->
+        <section id="headers" class="doc-section">
+            <h3>۶. هدرهای سفارشی و توکن احراز هویت</h3>
+            <p>برای ارسال توکن‌های امنیتی (مانند Bearer Token) یا تغییر <code>User-Agent</code>، یک دیکشنری به آرگومان <code>headers</code> پاس دهید:</p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">import</span> requests
+
+custom_headers = {
+    <span class="str">"User-Agent"</span>: <span class="str">"MyPythonApp/1.0"</span>,
+    <span class="str">"Authorization"</span>: <span class="str">"Bearer YOUR_SECRET_TOKEN"</span>
+}
+
+response = requests.<span class="fn">get</span>(<span class="str">"https://httpbin.org/headers"</span>, headers=custom_headers)
+<span class="fn">print</span>(response.<span class="fn">json</span>())</code></pre>
+            </div>
+        </section>
+
+        <!-- ۷. مدیریت خطا و Timeout -->
+        <section id="timeout-errors" class="doc-section">
+            <h3>۷. مدیریت زمان انتظار (Timeout) و خطاها</h3>
+            <p>همیشه در پروژه‌های واقعی برای درخواست‌های خود <code>timeout</code> تعیین کنید تا برنامه در صورت کندی سرور، بی‌نهایت متوقف نماند.</p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">import</span> requests
+<span class="kw">from</span> requests.exceptions <span class="kw">import</span> RequestException, Timeout
+
+<span class="kw">try</span>:
+    <span class="cm"># حداکثر ۵ ثانیه منتظر پاسخ می‌ماند</span>
+    response = requests.<span class="fn">get</span>(<span class="str">"https://httpbin.org/delay/2"</span>, timeout=<span class="num">5</span>)
+    
+    <span class="cm"># اگر کد وضعیت 4xx یا 5xx باشد خطا تولید می‌کند</span>
+    response.<span class="fn">raise_for_status</span>()
+    <span class="fn">print</span>(<span class="str">"درخواست با موفقیت انجام شد!"</span>)
+
+<span class="kw">except</span> Timeout:
+    <span class="fn">print</span>(<span class="str">"خطا: مهلت زمانی اتصال به سرور به پایان رسید."</span>)
+<span class="kw">except</span> RequestException <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="str">f"خطا در برقراری ارتباط: {e}"</span>)</code></pre>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>نکته مهم:</strong> بدون تنظیم <code>timeout</code>، ممکن است برنامه شما در صورت قطع ارتباط سرور برای همیشه قفل (Hang) شود.
+            </div>
+        </section>
+
+        <!-- ۸. Session -->
+        <section id="session" class="doc-section">
+            <h3>۸. استفاده از Session (افزایش سرعت و حفظ کوکی‌ها)</h3>
+            <p>وقتی چندین درخواست پیاپی به یک سرور می‌فرستید، استفاده از <code>Session</code> باعث می‌شود اتصال TCP باز بماند (Connection Pooling) و سرعت درخواست‌ها به شکل چشمگیری افزایش یابد:</p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>python</span>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">import</span> requests
+
+<span class="kw">with</span> requests.<span class="fn">Session</span>() <span class="kw">as</span> session:
+    <span class="cm"># این هدر برای تمام درخواست‌های بعدی این سشن ارسال می‌شود</span>
+    session.headers.<span class="fn">update</span>({<span class="str">"Authorization"</span>: <span class="str">"Bearer TOKEN_123"</span>})
+    
+    res1 = session.<span class="fn">get</span>(<span class="str">"https://httpbin.org/cookies/set/session_id/98765"</span>)
+    res2 = session.<span class="fn">get</span>(<span class="str">"https://httpbin.org/cookies"</span>)
+    
+    <span class="fn">print</span>(res2.<span class="fn">json</span>())  <span class="cm"># کوکی تنظیم شده در درخواست اول حفظ شده است</span></code></pre>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        function copyCode(button) {
+            const pre = button.closest('.code-wrapper').querySelector('pre');
+            const text = pre.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'کپی شد! ✓';
+                button.style.background = '#10b981';
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
