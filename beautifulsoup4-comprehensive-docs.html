@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مستندات جامع و پیشرفته Beautiful Soup 4 در پایتون</title>
+    <!-- فونت وزیرمتن برای فارسی و جت‌برینز مونو برای کدها -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-sidebar: #0f172a;
+            --bg-code: #0f172a;
+            --bg-code-header: #1e293b;
+            --bg-subtle: #f1f5f9;
+            --text-main: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --text-sidebar: #e2e8f0;
+            --primary: #059669;
+            --primary-hover: #047857;
+            --primary-light: #d1fae5;
+            --accent: #0ea5e9;
+            --border: #e2e8f0;
+            --warning-bg: #fffbeb;
+            --warning-border: #f59e0b;
+            --info-bg: #eff6ff;
+            --info-border: #3b82f6;
+            --danger-bg: #fef2f2;
+            --danger-border: #ef4444;
+            --success-bg: #ecfdf5;
+            --success-border: #10b981;
+            --radius: 14px;
+            --shadow: 0 4px 12px -2px rgb(0 0 0 / 0.06), 0 2px 6px -1px rgb(0 0 0 / 0.04);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0b1120;
+            --bg-card: #1e293b;
+            --bg-sidebar: #090d16;
+            --bg-code: #090d16;
+            --bg-code-header: #111827;
+            --bg-subtle: #0f172a;
+            --text-main: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --primary: #10b981;
+            --primary-hover: #34d399;
+            --primary-light: rgba(16, 185, 129, 0.15);
+            --border: #334155;
+            --warning-bg: rgba(245, 158, 11, 0.1);
+            --info-bg: rgba(59, 130, 246, 0.1);
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --shadow: 0 4px 15px -2px rgb(0 0 0 / 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.85;
+            display: flex;
+            min-height: 100vh;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        /* نوار کناری (Sidebar) */
+        .sidebar {
+            width: 310px;
+            background-color: var(--bg-sidebar);
+            color: var(--text-sidebar);
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            padding: 1.5rem 1.25rem;
+            overflow-y: auto;
+            z-index: 100;
+            border-left: 1px solid #1e293b;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #10b981, #0284c7);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1rem;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .brand-text h1 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .theme-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+        }
+
+        .theme-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        /* جستجو در سایدبار */
+        .search-box {
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 0.6rem 0.9rem;
+            border-radius: 9px;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .nav-list a {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 0.55rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            display: block;
+            transition: all 0.2s ease;
+            border-right: 3px solid transparent;
+        }
+
+        .nav-list a:hover, .nav-list a.active {
+            background-color: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border-right-color: #10b981;
+            transform: translateX(-3px);
+        }
+
+        /* محتوای اصلی */
+        .main-content {
+            margin-right: 310px;
+            flex: 1;
+            padding: 2.5rem 3.5rem;
+            max-width: 1180px;
+        }
+
+        /* هدر قهرمان (Hero) */
+        .hero {
+            background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%);
+            color: #fff;
+            padding: 2.75rem;
+            border-radius: var(--radius);
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .hero-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            padding: 0.25rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .hero h2 {
+            font-size: 2.1rem;
+            font-weight: 900;
+            margin-bottom: 0.85rem;
+            letter-spacing: -0.5px;
+        }
+
+        .hero p {
+            color: #cbd5e1;
+            font-size: 1.05rem;
+            max-width: 820px;
+            line-height: 1.9;
+        }
+
+        /* کارت‌های سکشن */
+        .doc-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.25rem;
+            margin-bottom: 2.25rem;
+            box-shadow: var(--shadow);
+            transition: background-color 0.25s ease, border-color 0.25s ease;
+        }
+
+        .doc-section h3 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 1.15rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 2px solid var(--bg-subtle);
+        }
+
+        .section-num {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .doc-section h4 {
+            font-size: 1.12rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 1.6rem 0 0.65rem 0;
+        }
+
+        .doc-section p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            text-align: justify;
+        }
+
+        .doc-section ul, .doc-section ol {
+            margin: 0.75rem 1.5rem 1.25rem 0;
+            color: var(--text-secondary);
+        }
+
+        .doc-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        p code, li code, td code {
+            background: var(--bg-subtle);
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.84rem;
+            color: var(--primary);
+            direction: ltr;
+            display: inline-block;
+            border: 1px solid var(--border);
+        }
+
+        /* باکس کد (چپ‌چین) */
+        .code-wrapper {
+            position: relative;
+            margin: 1.25rem 0;
+            direction: ltr;
+            text-align: left;
+            border-radius: 11px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        .code-header {
+            background: var(--bg-code-header);
+            color: #94a3b8;
+            padding: 0.55rem 1.1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .code-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .dot-r { background: #ef4444; }
+        .dot-y { background: #f59e0b; }
+        .dot-g { background: #10b981; }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        pre {
+            background-color: var(--bg-code);
+            color: #f8fafc;
+            padding: 1.35rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88rem;
+            line-height: 1.65;
+        }
+
+        /* رنگ‌بندی سینتکس */
+        .kw { color: #c084fc; font-weight: 600; } /* کلیدواژه */
+        .fn { color: #38bdf8; } /* تابع و متد */
+        .str { color: #6ee7b7; } /* رشته */
+        .cm { color: #64748b; font-style: italic; } /* کامنت */
+        .num { color: #fbbf24; } /* عدد */
+        .cls { color: #f472b6; } /* کلاس */
+        .arg { color: #fdba74; } /* آرگومان */
+
+        /* گرید کارت‌ها */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.1rem;
+            margin: 1.25rem 0;
+        }
+
+        .info-card {
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 1.2rem;
+            background: var(--bg-subtle);
+        }
+
+        .info-card h5 {
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 0.4rem;
+            font-family: 'JetBrains Mono', 'Vazirmatn', sans-serif;
+        }
+
+        .info-card p {
+            font-size: 0.88rem;
+            margin-bottom: 0;
+            color: var(--text-secondary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.65rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-bottom: 0.55rem;
+        }
+
+        .badge-green { background: #dcfce7; color: #15803d; }
+        .badge-blue { background: #dbeafe; color: #1d4ed8; }
+        .badge-amber { background: #fef3c7; color: #b45309; }
+        .badge-purple { background: #f3e8ff; color: #7e22ce; }
+
+        /* جدول */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.35rem 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+        }
+
+        th, td {
+            padding: 0.9rem 1.1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--bg-subtle);
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* باکس‌های هشدار و نکته */
+        .alert {
+            padding: 1.1rem 1.35rem;
+            border-radius: 10px;
+            margin: 1.25rem 0;
+            border-right: 4px solid var(--info-border);
+            background-color: var(--info-bg);
+            font-size: 0.93rem;
+            color: var(--text-main);
+        }
+
+        .alert-warning {
+            border-right-color: var(--warning-border);
+            background-color: var(--warning-bg);
+        }
+
+        .alert-success {
+            border-right-color: var(--success-border);
+            background-color: var(--success-bg);
+        }
+
+        .alert-danger {
+            border-right-color: var(--danger-border);
+            background-color: var(--danger-bg);
+        }
+
+        /* فوتر */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+
+        /* واکنش‌گرا برای موبایل و تبلت */
+        @media (max-width: 992px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                position: relative;
+                width: 100%;
+                max-height: 360px;
+                border-left: none;
+                border-bottom: 1px solid #334155;
+            }
+            .main-content {
+                margin-right: 0;
+                padding: 1.5rem;
+            }
+            .hero h2 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- نوار کناری -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-info">
+                <div class="brand-icon">BS4</div>
+                <div class="brand-text">
+                    <h1>Beautiful Soup 4</h1>
+                    <span>مستندات جامع وب‌اسکرپینگ</span>
+                </div>
+            </div>
+            <button class="theme-btn" id="themeToggle" title="تغییر حالت شب و روز">🌙</button>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="جستجو در سرفصل‌ها و متدها...">
+        </div>
+
+        <ul class="nav-list" id="navList">
+            <li><a href="#intro">۱. معرفی و معماری BS4</a></li>
+            <li><a href="#install-parsers">۲. نصب و مقایسه Parserها</a></li>
+            <li><a href="#core-objects">۳. شروع کار و اشیاء چهارگانه</a></li>
+            <li><a href="#tags-attrs">۴. تگ‌ها، نام و ویژگی‌ها (Attrs)</a></li>
+            <li><a href="#find-methods">۵. جستجو با find و find_all</a></li>
+            <li><a href="#css-selectors">۶. انتخابگرهای CSS (select)</a></li>
+            <li><a href="#advanced-filters">۷. فیلترهای Regex و Lambda</a></li>
+            <li><a href="#dom-traversal">۸. پیمایش درخت DOM</a></li>
+            <li><a href="#text-tables">۹. استخراج متن و جداول HTML</a></li>
+            <li><a href="#modify-tree">۱۰. دستکاری و ویرایش ساختار</a></li>
+            <li><a href="#output-perf">۱۱. خروجی، انکودینگ و SoupStrainer</a></li>
+            <li><a href="#real-project">۱۲. پروژه عملی (Requests + BS4)</a></li>
+            <li><a href="#cheatsheet">۱۳. جدول تقلب و خطاهای رایج</a></li>
+        </ul>
+    </aside>
+
+    <!-- محتوای اصلی -->
+    <main class="main-content">
+        
+        <header class="hero">
+            <div class="hero-badges">
+                <span class="hero-badge">BeautifulSoup 4.12+</span>
+                <span class="hero-badge">Web Scraping</span>
+                <span class="hero-badge">HTML &amp; XML Parser</span>
+            </div>
+            <h2>مرجع کامل و کاربردی Beautiful Soup 4 در پایتون</h2>
+            <p>
+                کتابخانه <strong>Beautiful Soup</strong> قدرتمندترین و محبوب‌ترین ابزار پایتون برای استخراج داده از فایل‌های HTML و XML است. این کتابخانه با ساخت یک درخت پیمایشی (Parse Tree) از تگ‌های صفحه وب، به شما امکان می‌دهد حتی از صفحات وب با کدنویسی نامرتب و شکسته، اطلاعات را با کمترین کد استخراج کنید.
+            </p>
+        </header>
+
+        <!-- ۱. معرفی و معماری -->
+        <section id="intro" class="doc-section">
+            <h3><span class="section-num">۱</span> معرفی و نحوه عملکرد Beautiful Soup 4</h3>
+            <p>
+                برخلاف کتابخانه <code>requests</code> که وظیفه دانلود سورس صفحه وب را بر عهده دارد، <strong>Beautiful Soup</strong> هیچ درخواستی به اینترنت ارسال نمی‌کند؛ بلکه رشته متنی HTML یا XML دریافت‌شده را تحویل گرفته و آن را به مجموعه‌ای از اشیاء پایتونی تو در تو تبدیل می‌کند.
+            </p>
+            <div class="grid-cards">
+                <div class="info-card">
+                    <span class="badge badge-green">تحمل خطای بالا</span>
+                    <h5>تعمیر خودکار HTML ناقص</h5>
+                    <p>تگ‌های بازمانده و ساختارهای غیراستاندارد صفحات وب را به‌خوبی تشخیص داده و اصلاح می‌کند.</p>
+                </div>
+                <div class="info-card">
+                    <span class="badge badge-blue">پشتیبانی از چند مفسر</span>
+                    <h5>موتورهای منعطف</h5>
+                    <p>قابلیت اتصال به موتورهای پرسرعتی مانند <code>lxml</code> و مفسرهای استاندارد مانند <code>html5lib</code> را دارد.</p>
+                </div>
+                <div class="info-card">
+                    <span class="badge badge-amber">جستجوی ترکیبی</span>
+                    <h5>DOM + CSS Selectors</h5>
+                    <p>امکان جستجو هم با متدهای پایتونی (<code>find_all</code>) و هم با انتخابگرهای مدرن CSS (<code>select</code>).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ۲. نصب و مقایسه Parserها -->
+        <section id="install-parsers" class="doc-section">
+            <h3><span class="section-num">۲</span> نصب کتابخانه و مقایسه جامع Parserها</h3>
+            <p>
+                برای استفاده از نسخه چهارم این کتابخانه، بسته <code>beautifulsoup4</code> را به همراه مفسرهای کمکی <code>lxml</code> و <code>html5lib</code> نصب کنید:
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <div class="code-title"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span>Terminal / Bash</span></div>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code>pip install beautifulsoup4 lxml html5lib requests</code></pre>
+            </div>
+
+            <h4>مقایسه مفسرها (Parsers) در Beautiful Soup</h4>
+            <p>هنگام ساخت شیء <code>BeautifulSoup</code>، باید مشخص کنید از کدام موتور تجزیه‌کننده استفاده شود:</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نام مفسر (Parser)</th>
+                            <th>نحوه فراخوانی</th>
+                            <th>سرعت</th>
+                            <th>مزایا و معایب</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>پارسر داخلی پایتون</strong></td>
+                            <td><code>"html.parser"</code></td>
+                            <td>متوسط</td>
+                            <td>بدون نیاز به نصب پکیج جانبی، سرعت مناسب، حساسیت متوسط به HTML خراب.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>مفسر LXML (پیشنهادی)</strong></td>
+                            <td><code>"lxml"</code></td>
+                            <td>بسیار سریع ⚡</td>
+                            <td>سریع‌ترین گزینه، نوشته شده به زبان C، نیازمند نصب پکیج <code>lxml</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>مفسر LXML XML</strong></td>
+                            <td><code>"xml"</code> یا <code>"lxml-xml"</code></td>
+                            <td>بسیار سریع ⚡</td>
+                            <td>تنها مفسر رسمی پشتیبانی‌کننده از فایل‌های XML، فیدهای RSS و Sitemap.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>مفسر HTML5lib</strong></td>
+                            <td><code>"html5lib"</code></td>
+                            <td>کند</td>
+                            <td>صفحه را دقیقاً مانند یک مرورگر واقعی تفسیر می‌کند؛ عالی برای صفحات به‌شدت نامرتب.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert alert-success">
+                <strong>توصیه حرفه‌ای:</strong> در پروژه‌های اسکرپینگ، همیشه از <code>"lxml"</code> به عنوان پارسر پیش‌فرض استفاده کنید؛ زیرا تا چند برابر سریع‌تر از <code>html.parser</code> عمل می‌کند.
+            </div>
+        </section>
+
+        <!-- ۳. شروع کار و اشیاء چهارگانه -->
+        <section id="core-objects" class="doc-section">
+            <h3><span class="section-num">۳</span> شروع کار و شناخت اشیاء چهارگانه در BS4</h3>
+            <p>
+                درک معماری Beautiful Soup با شناخت ۴ نوع شیء کلیدی که پس از تجزیه سند تولید می‌شوند بسیار ساده می‌شود:
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <div class="code-title"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span>python — basic_objects.py</span></div>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">from</span> bs4 <span class="kw">import</span> BeautifulSoup, Comment
+
+html_doc = <span class="str">'''
+&lt;html&gt;
+    &lt;head&gt;&lt;title&gt;فروشگاه کتاب پایتون&lt;/title&gt;&lt;/head&gt;
+    &lt;body&gt;
+        &lt;!-- این یک کامنت تستی در سورس است --&gt;
+        &lt;h1 class="main-title" id="header"&gt;لیست کتاب‌های ویژه&lt;/h1&gt;
+        &lt;p class="desc"&gt;بهترین منابع آموزش برنامه‌نویسی&lt;/p&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+'''</span>
+
+<span class="cm"># ۱. شیء BeautifulSoup (کل سند را نمایندگی می‌کند)</span>
+soup = <span class="cls">BeautifulSoup</span>(html_doc, <span class="str">"lxml"</span>)
+
+<span class="cm"># ۲. شیء Tag (نماینده یک تگ HTML یا XML)</span>
+h1_tag = soup.h1
+<span class="fn">print</span>(<span class="fn">type</span>(h1_tag))          <span class="cm"># &lt;class 'bs4.element.Tag'&gt;</span>
+
+<span class="cm"># ۳. شیء NavigableString (متن داخل تگ)</span>
+title_text = soup.h1.string
+<span class="fn">print</span>(<span class="fn">type</span>(title_text))      <span class="cm"># &lt;class 'bs4.element.NavigableString'&gt;</span>
+
+<span class="cm"># ۴. شیء Comment (کامنت‌های داخل HTML، زیرمجموعه‌ای از NavigableString)</span>
+comment = soup.<span class="fn">find</span>(string=<span class="kw">lambda</span> text: <span class="fn">isinstance</span>(text, Comment))
+<span class="fn">print</span>(comment.strip())       <span class="cm"># این یک کامنت تستی در سورس است</span></code></pre>
+            </div>
+        </section>
+
+        <!-- ۴. دسترسی به تگ‌ها و ویژگی‌ها -->
+        <section id="tags-attrs" class="doc-section">
+            <h3><span class="section-num">۴</span> دسترسی به تگ‌ها، نام و ویژگی‌ها (Attributes)</h3>
+            <p>
+                هر شیء <code>Tag</code> دارای نام (<code>.name</code>) و دیکشنری ویژگی‌ها (<code>.attrs</code>) است. برای خواندن ویژگی‌هایی مثل <code>href</code>، <code>src</code> یا <code>id</code> می‌توانید مانند دیکشنری‌های پایتون با آن رفتار کنید.
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <div class="code-title"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span>python — attributes.py</span></div>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">from</span> bs4 <span class="kw">import</span> BeautifulSoup
+
+html = <span class="str">'&lt;a href="https://python.org" class="btn btn-primary" data-id="105"&gt;سایت پایتون&lt;/a&gt;'</span>
+soup = <span class="cls">BeautifulSoup</span>(html, <span class="str">"lxml"</span>)
+link = soup.a
+
+<span class="cm"># نام تگ</span>
+<span class="fn">print</span>(link.name)                <span class="cm"># 'a'</span>
+
+<span class="cm"># دریافت همه ویژگی‌ها به صورت دیکشنری</span>
+<span class="fn">print</span>(link.attrs)               <span class="cm"># {'href': 'https://python.org', 'class': ['btn', 'btn-primary'], 'data-id': '105'}</span>
+
+<span class="cm"># دو روش دسترسی به یک ویژگی خاص</span>
+<span class="fn">print</span>(link[<span class="str">"href"</span>])             <span class="cm"># اگر ویژگی وجود نداشته باشد خطای KeyError می‌دهد</span>
+<span class="fn">print</span>(link.<span class="fn">get</span>(<span class="str">"href"</span>))         <span class="cm"># ایمن‌تر: در صورت نبود ویژگی، None برمی‌گرداند</span>
+<span class="fn">print</span>(link.<span class="fn">get</span>(<span class="str">"target"</span>, <span class="str">"_self"</span>)) <span class="cm"># تعیین مقدار پیش‌فرض در صورت نبود ویژگی</span>
+
+<span class="cm"># ویژگی‌های چندمقداری (مثل class) به صورت لیست برگردانده می‌شوند</span>
+<span class="fn">print</span>(link[<span class="str">"class"</span>])            <span class="cm"># ['btn', 'btn-primary']</span></code></pre>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>نکته مهم امنیتی در کدنویسی:</strong> همیشه به جای <code>tag['href']</code> از متد <code>tag.get('href')</code> استفاده کنید تا اگر یکی از تگ‌های صفحه فاقد لینک بود، اسکریپت شما با خطای <code>KeyError</code> متوقف نشود.
+            </div>
+        </section>
+
+        <!-- ۵. جستجو با find و find_all -->
+        <section id="find-methods" class="doc-section">
+            <h3><span class="section-num">۵</span> توابع جستجوی اصلی: <code>find()</code> و <code>find_all()</code></h3>
+            <p>
+                پراستفاده‌ترین متدها در Beautiful Soup این دو تابع هستند. متد <code>find()</code> تنها <strong>اولین نتیجه</strong> منطبق را برمی‌گرداند (یا <code>None</code> در صورت نیافتن)، در حالی که <code>find_all()</code> <strong>لیستی از تمام تگ‌های منطبق</strong> (<code>ResultSet</code>) را برمی‌گرداند.
+            </p>
+
+            <h4>امضای کامل متد <code>find_all</code></h4>
+            <p><code>find_all(name, attrs, recursive, string, limit, **kwargs)</code></p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <div class="code-title"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span>python — find_examples.py</span></div>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">from</span> bs4 <span class="kw">import</span> BeautifulSoup
+
+html = <span class="str">'''
+&lt;div id="products"&gt;
+    &lt;article class="item featured" data-category="book"&gt;
+        &lt;h2&gt;آموزش جامع پایتون&lt;/h2&gt;
+        &lt;span class="price"&gt;250000&lt;/span&gt;
+    &lt;/article&gt;
+    &lt;article class="item" data-category="course"&gt;
+        &lt;h2&gt;دوره هوش مصنوعی&lt;/h2&gt;
+        &lt;span class="price"&gt;890000&lt;/span&gt;
+    &lt;/article&gt;
+    &lt;article class="item" data-category="book"&gt;
+        &lt;h2&gt;وب اسکرپینگ پیشرفته&lt;/h2&gt;
+        &lt;span class="price"&gt;320000&lt;/span&gt;
+    &lt;/article&gt;
+&lt;/div&gt;
+'''</span>
+soup = <span class="cls">BeautifulSoup</span>(html, <span class="str">"lxml"</span>)
+
+<span class="cm"># ۱. جستجو بر اساس نام تگ</span>
+all_articles = soup.<span class="fn">find_all</span>(<span class="str">"article"</span>)
+
+<span class="cm"># ۲. جستجو بر اساس کلاس CSS (توجه به زیرخط در class_ به دلیل کلمه کلیدی بودن در پایتون)</span>
+featured = soup.<span class="fn">find</span>(<span class="str">"article"</span>, class_=<span class="str">"featured"</span>)
+
+<span class="cm"># ۳. جستجو با دیکشنری attrs (مناسب برای ویژگی‌های دارای خط تیره مثل data-*)</span>
+books = soup.<span class="fn">find_all</span>(<span class="str">"article"</span>, attrs={<span class="str">"data-category"</span>: <span class="str">"book"</span>})
+
+<span class="cm"># ۴. محدود کردن تعداد نتایج با limit</span>
+top_two = soup.<span class="fn">find_all</span>(<span class="str">"article"</span>, limit=<span class="num">2</span>)
+
+<span class="cm"># ۵. جستجو بر اساس متن دقیق داخل تگ با آرگومان string</span>
+target_h2 = soup.<span class="fn">find</span>(<span class="str">"h2"</span>, string=<span class="str">"دوره هوش مصنوعی"</span>)
+
+<span class="cm"># ۶. جستجو فقط در فرزندان مستقیم (غیربازگشتی)</span>
+direct_children = soup.div.<span class="fn">find_all</span>(<span class="str">"article"</span>, recursive=<span class="kw">False</span>)</code></pre>
+            </div>
+
+            <div class="alert">
+                <strong>میانبر در BS4:</strong> فراخوانی مستقیم <code>soup("article")</code> دقیقاً معادل <code>soup.find_all("article")</code> است و <code>soup.article</code> معادل <code>soup.find("article")</code> می‌باشد.
+            </div>
+        </section>
+
+        <!-- ۶. انتخابگرهای CSS -->
+        <section id="css-selectors" class="doc-section">
+            <h3><span class="section-num">۶</span> انتخابگرهای پیشرفته CSS با <code>select()</code> و <code>select_one()</code></h3>
+            <p>
+                اگر با فرانت‌اند و CSS آشنایی دارید، متدهای <code>select()</code> (معادل <code>querySelectorAll</code>) و <code>select_one()</code> (معادل <code>querySelector</code>) نوشتن کوئری‌های پیچیده و تودرتو را فوق‌العاده راحت می‌کنند.
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <div class="code-title"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span>python — css_selectors.py</span></div>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="cm"># ۱. انتخاب بر اساس کلاس (.) و آیدی (#)</span>
+header = soup.<span class="fn">select_one</span>(<span class="str">"#products"</span>)
+items = soup.<span class="fn">select</span>(<span class="str">".item.featured"</span>)  <span class="cm"># تگ‌هایی که هر دو کلاس را همزمان دارند</span>
+
+<span class="cm"># ۲. انتخاب تگ‌های تودرتو (اعقاب و فرزندان مستقیم)</span>
+all_h2_inside_div = soup.<span class="fn">select</span>(<span class="str">"div#products article h2"</span>)
+direct_articles = soup.<span class="fn">select</span>(<span class="str">"div#products &gt; article"</span>)  <span class="cm"># فقط فرزند مستقیم</span>
+
+<span class="cm"># ۳. انتخابگرهای ویژگی (Attribute Selectors)</span>
+secure_links = soup.<span class="fn">select</span>(<span class="str">'a[href^="https://"]'</span>)      <span class="cm"># شروع با https://</span>
+pdf_files = soup.<span class="fn">select</span>(<span class="str">'a[href$=".pdf"]'</span>)             <span class="cm"># پایان با .pdf</span>
+contains_shop = soup.<span class="fn">select</span>(<span class="str">'a[href*="shop"]'</span>)         <span class="cm"># شامل کلمه shop</span>
+
+<span class="cm"># ۴. انتخابگرهای شبه کلاس (Pseudo-classes)</span>
+second_article = soup.<span class="fn">select_one</span>(<span class="str">"article:nth-of-type(2)"</span>)
+not_featured = soup.<span class="fn">select</span>(<span class="str">"article:not(.featured)"</span>)
+
+<span class="cm"># ۵. انتخاب تگ‌های هم‌سطح (Siblings)</span>
+next_sibling = soup.<span class="fn">select_one</span>(<span class="str">"h2 + span.price"</span>)      <span class="cm"># تگ span بلافاصله بعد از h2</span></code></pre>
+            </div>
+        </section>
+
+        <!-- ۷. فیلترهای پیشرفته -->
+        <section id="advanced-filters" class="doc-section">
+            <h3><span class="section-num">۷</span> فیلترهای هوشمند: Regex، لیست‌ها و توابع Lambda</h3>
+            <p>
+                گاهی در صفحات وب داینامیک، نام کلاس‌ها یا آیدی‌ها دارای اعداد تصادفی است (مثلاً <code>product-row-849</code>) یا می‌خواهید تگ‌هایی را بیابید که شرط‌های منطقی خاصی دارند. در این حالت، ترکیب BS4 با ماژول <code>re</code> و توابع <code>lambda</code> معجزه می‌کند:
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <div class="code-title"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span>python — regex_lambda_filters.py</span></div>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">import</span> re
+<span class="kw">from</span> bs4 <span class="kw">import</span> BeautifulSoup
+
+<span class="cm"># ۱. ارسال لیست: یافتن همزمان چندین تگ مختلف</span>
+headings = soup.<span class="fn">find_all</span>([<span class="str">"h1"</span>, <span class="str">"h2"</span>, <span class="str">"h3"</span>])
+
+<span class="cm"># ۲. استفاده از عبارات باقاعده (Regex)</span>
+<span class="cm"># یافتن تگ‌هایی که آیدی آن‌ها با item- شروع شده و به عدد ختم می‌شود</span>
+dynamic_items = soup.<span class="fn">find_all</span>(<span class="str">"div"</span>, id=re.<span class="fn">compile</span>(<span class="str">r"^item-\d+$"</span>))
+
+<span class="cm"># یافتن تگ‌هایی که متن آن‌ها شامل کلمه 'تخفیف' است</span>
+discount_tags = soup.<span class="fn">find_all</span>(string=re.<span class="fn">compile</span>(<span class="str">"تخفیف"</span>))
+
+<span class="cm"># ۳. استفاده از مقدار True (یعنی ویژگی وجود داشته باشد، مهم نیست مقدارش چیست)</span>
+tags_with_id = soup.<span class="fn">find_all</span>(id=<span class="kw">True</span>)
+
+<span class="cm"># ۴. فیلتر سفارشی با تابع Lambda</span>
+<span class="cm"># یافتن تگ‌های article که دقیقاً ۲ ویژگی دارند و متن داخلشان بیشتر از ۲۰ کاراکتر است</span>
+custom_matches = soup.<span class="fn">find_all</span>(
+    <span class="kw">lambda</span> tag: tag.name == <span class="str">"article"</span> 
+    <span class="kw">and</span> <span class="fn">len</span>(tag.attrs) == <span class="num">2</span> 
+    <span class="kw">and</span> <span class="fn">len</span>(tag.<span class="fn">get_text</span>(strip=<span class="kw">True</span>)) &gt; <span class="num">20</span>
+)</code></pre>
+            </div>
+        </section>
+
+        <!-- ۸. پیمایش درخت DOM -->
+        <section id="dom-traversal" class="doc-section">
+            <h3><span class="section-num">۸</span> پیمایش درخت DOM (حرکت به بالا، پایین و طرفین)</h3>
+            <p>
+                زمانی که یک تگ مرجع را پیدا کردید، می‌توانید بدون جستجوی مجدد، به والدین، فرزندان یا تگ‌های همسایه (خواهر و برادر) آن دسترسی پیدا کنید:
+            </p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>جهت حرکت</th>
+                            <th>ویژگی / متد</th>
+                            <th>توضیح کاربردی</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>رو به پایین (فرزندان)</strong></td>
+                            <td><code>.contents</code> و <code>.children</code></td>
+                            <td>فرزندان مستقیم یک تگ را برمی‌گرداند (شامل تگ‌ها و رشته‌های متنی/فاصله‌ها).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>رو به پایین (کل زیرمجموعه)</strong></td>
+                            <td><code>.descendants</code></td>
+                            <td>یک Generator که تمام فرزندان، نوه‌ها و زیرمجموعه‌ها را به صورت بازگشتی پیمایش می‌کند.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>رو به بالا (والد)</strong></td>
+                            <td><code>.parent</code> و <code>.parents</code></td>
+                            <td>دسترسی به تگ دربرگیرنده مستقیم یا حرکت پله‌پله تا رسیدن به ریشه سند.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>رو به طرفین (هم‌سطح)</strong></td>
+                            <td><code>.next_sibling</code> / <code>.previous_sibling</code></td>
+                            <td>حرکت به عنصر هم‌سطح بعدی یا قبلی در همان والد.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>جستجوی هوشمند در اطراف</strong></td>
+                            <td><code>.find_parent()</code> / <code>.find_next_sibling()</code></td>
+                            <td>برخلاف <code>.next_sibling</code> که ممکن است فاصله خالی (<code>
+</code>) را بگیرد، این متدها فقط تگ واقعی مدنظر را می‌یابند.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <div class="code-title"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span>python — dom_navigation.py</span></div>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code>price_tag = soup.<span class="fn">find</span>(<span class="str">"span"</span>, class_=<span class="str">"price"</span>)
+
+<span class="cm"># یافتن کارت محصولی که این قیمت داخل آن قرار دارد (حرکت به بالا)</span>
+product_card = price_tag.<span class="fn">find_parent</span>(<span class="str">"article"</span>)
+
+<span class="cm"># یافتن تگ هم‌سطح قبلی (عنوان محصول که قبل از قیمت آمده است)</span>
+title_tag = price_tag.<span class="fn">find_previous_sibling</span>(<span class="str">"h2"</span>)
+<span class="fn">print</span>(title_tag.text)</code></pre>
+            </div>
+        </section>
+
+        <!-- ۹. استخراج متن و جداول -->
+        <section id="text-tables" class="doc-section">
+            <h3><span class="section-num">۹</span> استخراج تمیز متن و تبدیل جداول HTML به داده</h3>
+            <p>
+                برای استخراج متن از درون تگ‌ها، متد <code>.get_text()</code> بسیار قدرتمندتر از <code>.string</code> است؛ زیرا متن تمام زیرتگ‌ها را با هم ادغام کرده و به شما اجازه می‌دهد فاصله‌های اضافی را حذف کنید.
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <div class="code-title"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span>python — text_and_tables.py</span></div>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="cm"># ۱. استخراج متن تمیز با جداکننده دلخواه و حذف فاصله‌های ابتدا و انتها</span>
+clean_text = soup.<span class="fn">get_text</span>(separator=<span class="str">" | "</span>, strip=<span class="kw">True</span>)
+
+<span class="cm"># ۲. دریافت لیست تمام متن‌های غیرخالی داخل یک بخش با stripped_strings</span>
+texts_list = <span class="fn">list</span>(soup.div.stripped_strings)
+
+<span class="cm"># ۳. الگوهای استاندارد استخراج جدول HTML (&lt;table&gt;) به لیست دیکشنری‌ها</span>
+table_html = <span class="str">'''
+&lt;table id="crypto"&gt;
+    &lt;thead&gt;&lt;tr&gt;&lt;th&gt;ارز&lt;/th&gt;&lt;th&gt;نماد&lt;/th&gt;&lt;th&gt;قیمت ($)&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+    &lt;tbody&gt;
+        &lt;tr&gt;&lt;td&gt;بیت‌کوین&lt;/td&gt;&lt;td&gt;BTC&lt;/td&gt;&lt;td&gt;68500&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td&gt;اتریوم&lt;/td&gt;&lt;td&gt;ETH&lt;/td&gt;&lt;td&gt;3600&lt;/td&gt;&lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;
+'''</span>
+table_soup = <span class="cls">BeautifulSoup</span>(table_html, <span class="str">"lxml"</span>)
+
+headers = [th.<span class="fn">get_text</span>(strip=<span class="kw">True</span>) <span class="kw">for</span> th <span class="kw">in</span> table_soup.<span class="fn">select</span>(<span class="str">"thead th"</span>)]
+rows_data = []
+
+<span class="kw">for</span> tr <span class="kw">in</span> table_soup.<span class="fn">select</span>(<span class="str">"tbody tr"</span>):
+    cells = [td.<span class="fn">get_text</span>(strip=<span class="kw">True</span>) <span class="kw">for</span> td <span class="kw">in</span> tr.<span class="fn">find_all</span>(<span class="str">"td"</span>)]
+    rows_data.<span class="fn">append</span>(<span class="fn">dict</span>(<span class="fn">zip</span>(headers, cells)))
+
+<span class="fn">print</span>(rows_data)
+<span class="cm"># [{'ارز': 'بیت‌کوین', 'نماد': 'BTC', 'قیمت ($)': '68500'}, {'ارز': 'اتریوم', ...}]</span></code></pre>
+            </div>
+        </section>
+
+        <!-- ۱۰. دستکاری و ویرایش ساختار -->
+        <section id="modify-tree" class="doc-section">
+            <h3><span class="section-num">۱۰</span> ویرایش، حذف و دستکاری درخت HTML</h3>
+            <p>
+                Beautiful Soup تنها برای خواندن اطلاعات نیست! شما می‌توانید تبلیغات مزاحم، تگ‌های <code>&lt;script&gt;</code> یا <code>&lt;style&gt;</code> را قبل از پردازش متن حذف کنید، یا تگ‌های جدید بسازید و فایل HTML ویرایش‌شده را ذخیره کنید.
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <div class="code-title"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span>python — modify_dom.py</span></div>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">from</span> bs4 <span class="kw">import</span> BeautifulSoup
+
+soup = <span class="cls">BeautifulSoup</span>(<span class="str">'&lt;div class="box"&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;p&gt;متن اصلی&lt;/p&gt;&lt;/div&gt;'</span>, <span class="str">"lxml"</span>)
+
+<span class="cm"># ۱. حذف کامل تگ‌های مزاحم (مثل اسکریپت‌ها و تبلیغات) با decompose()</span>
+<span class="kw">for</span> script <span class="kw">in</span> soup.<span class="fn">find_all</span>([<span class="str">"script"</span>, <span class="str">"style"</span>]):
+    script.<span class="fn">decompose</span>()  <span class="cm"># تگ را از درخت حذف و از حافظه پاک می‌کند</span>
+
+<span class="cm"># ۲. تفاوت extract() با decompose(): متد extract تگ را جدا کرده و برمی‌گرداند</span>
+removed_p = soup.p.<span class="fn">extract</span>()
+
+<span class="cm"># ۳. ساخت تگ جدید و افزودن به سند</span>
+new_badge = soup.<span class="fn">new_tag</span>(<span class="str">"span"</span>, attrs={<span class="str">"class"</span>: <span class="str">"badge"</span>})
+new_badge.string = <span class="str">"جدید!"</span>
+soup.div.<span class="fn">append</span>(new_badge)
+
+<span class="cm"># ۴. تغییر نام تگ و ویژگی‌ها</span>
+soup.div.name = <span class="str">"section"</span>
+soup.section[<span class="str">"id"</span>] = <span class="str">"main-section"</span>
+
+<span class="fn">print</span>(soup.section)
+<span class="cm"># &lt;section class="box" id="main-section"&gt;&lt;span class="badge"&gt;جدید!&lt;/span&gt;&lt;/section&gt;</span></code></pre>
+            </div>
+        </section>
+
+        <!-- ۱۱. خروجی، انکودینگ و بهینه‌سازی با SoupStrainer -->
+        <section id="output-perf" class="doc-section">
+            <h3><span class="section-num">۱۱</span> خروجی، مدیریت Encoding و افزایش سرعت با <code>SoupStrainer</code></h3>
+            <p>
+                هنگام کار با صفحات وب بسیار حجیم (چندین مگابایت HTML)، تجزیه کل صفحه زمان‌بر است. کلاس <code>SoupStrainer</code> به شما اجازه می‌دهد <strong>فقط بخش خاصی از صفحه</strong> را در لحظه ورود پارس کنید تا مصرف رم و زمان پردازش به شدت کاهش یابد.
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <div class="code-title"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span>python — performance_and_encoding.py</span></div>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">from</span> bs4 <span class="kw">import</span> BeautifulSoup, SoupStrainer
+
+<span class="cm"># ۱. پارس کردن فقط تگ‌های لینک (&lt;a&gt;) و نادیده گرفتن بقیه صفحه!</span>
+only_a_tags = <span class="cls">SoupStrainer</span>(<span class="str">"a"</span>)
+fast_soup = <span class="cls">BeautifulSoup</span>(large_html_doc, <span class="str">"lxml"</span>, parse_only=only_a_tags)
+
+<span class="cm"># ۲. چاپ ساختار مرتب و تورفته (مناسب برای دیباگ)</span>
+<span class="fn">print</span>(fast_soup.<span class="fn">prettify</span>())
+
+<span class="cm"># ۳. حل مشکل به هم ریختگی حروف فارسی در سایت‌های قدیمی</span>
+<span class="cm"># اگر سایت انکودینگ را اشتباه اعلام کرده باشد، صریحاً utf-8 یا windows-1256 را بدهید:</span>
+persian_soup = <span class="cls">BeautifulSoup</span>(raw_bytes_content, <span class="str">"lxml"</span>, from_encoding=<span class="str">"utf-8"</span>)</code></pre>
+            </div>
+        </section>
+
+        <!-- ۱۲. پروژه عملی -->
+        <section id="real-project" class="doc-section">
+            <h3><span class="section-num">۱۲</span> پروژه عملی جامع: اسکرپر حرفه‌ای با Requests و BS4</h3>
+            <p>
+                در کد زیر، یک الگوی استاندارد و آماده استفاده در محیط واقعی (Production-Ready) را مشاهده می‌کنید که شامل <code>Session</code>، هدر مرورگر، مدیریت خطاها، استخراج ایمن تگ‌ها و ذخیره خروجی در فایل <code>CSV</code> است:
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <div class="code-title"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span>python — full_scraper_project.py</span></div>
+                    <button class="copy-btn" onclick="copyCode(this)">کپی کد</button>
+                </div>
+                <pre><code><span class="kw">import</span> csv
+<span class="kw">from</span> urllib.parse <span class="kw">import</span> urljoin
+<span class="kw">import</span> requests
+<span class="kw">from</span> bs4 <span class="kw">import</span> BeautifulSoup
+
+BASE_URL = <span class="str">"https://books.toscrape.com/"</span>
+HEADERS = {
+    <span class="str">"User-Agent"</span>: <span class="str">"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"</span>,
+    <span class="str">"Accept-Language"</span>: <span class="str">"fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7"</span>
+}
+
+<span class="kw">def</span> <span class="fn">scrape_books</span>(url: <span class="fn">str</span>) -&gt; <span class="fn">list</span>[<span class="fn">dict</span>]:
+    results = []
+    <span class="kw">with</span> requests.<span class="fn">Session</span>() <span class="kw">as</span> session:
+        session.headers.<span class="fn">update</span>(HEADERS)
+        <span class="kw">try</span>:
+            response = session.<span class="fn">get</span>(url, timeout=<span class="num">10</span>)
+            response.<span class="fn">raise_for_status</span>()
+        <span class="kw">except</span> requests.RequestException <span class="kw">as</span> e:
+            <span class="fn">print</span>(<span class="str">f"خطا در دریافت صفحه: {e}"</span>)
+            <span class="kw">return</span> results
+
+        <span class="cm"># استفاده از response.content به جای response.text برای تشخیص دقیق‌تر انکودینگ توسط BS4</span>
+        soup = <span class="cls">BeautifulSoup</span>(response.content, <span class="str">"lxml"</span>)
+
+        <span class="kw">for</span> card <span class="kw">in</span> soup.<span class="fn">select</span>(<span class="str">"article.product_pod"</span>):
+            title_el = card.<span class="fn">select_one</span>(<span class="str">"h3 a"</span>)
+            price_el = card.<span class="fn">select_one</span>(<span class="str">"p.price_color"</span>)
+            stock_el = card.<span class="fn">select_one</span>(<span class="str">"p.instock.availability"</span>)
+
+            title = title_el.<span class="fn">get</span>(<span class="str">"title"</span>, <span class="str">"بدون عنوان"</span>) <span class="kw">if</span> title_el <span class="kw">else</span> <span class="str">"نامشخص"</span>
+            rel_link = title_el.<span class="fn">get</span>(<span class="str">"href"</span>, <span class="str">""</span>) <span class="kw">if</span> title_el <span class="kw">else</span> <span class="str">""</span>
+            full_link = <span class="fn">urljoin</span>(url, rel_link)
+            price = price_el.<span class="fn">get_text</span>(strip=<span class="kw">True</span>) <span class="kw">if</span> price_el <span class="kw">else</span> <span class="str">"0"</span>
+            stock = stock_el.<span class="fn">get_text</span>(strip=<span class="kw">True</span>) <span class="kw">if</span> stock_el <span class="kw">else</span> <span class="str">"نامشخص"</span>
+
+            results.<span class="fn">append</span>({
+                <span class="str">"title"</span>: title,
+                <span class="str">"price"</span>: price,
+                <span class="str">"availability"</span>: stock,
+                <span class="str">"url"</span>: full_link
+            })
+
+    <span class="kw">return</span> results
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    books_data = <span class="fn">scrape_books</span>(BASE_URL)
+    <span class="kw">if</span> books_data:
+        <span class="kw">with</span> <span class="fn">open</span>(<span class="str">"books.csv"</span>, <span class="str">"w"</span>, newline=<span class="str">""</span>, encoding=<span class="str">"utf-8-sig"</span>) <span class="kw">as</span> f:
+            writer = csv.<span class="cls">DictWriter</span>(f, fieldnames=books_data[<span class="num">0</span>].<span class="fn">keys</span>())
+            writer.<span class="fn">writeheader</span>()
+            writer.<span class="fn">writerows</span>(books_data)
+        <span class="fn">print</span>(<span class="str">f"{len(books_data)} کتاب با موفقیت ذخیره شد."</span>)</code></pre>
+            </div>
+        </section>
+
+        <!-- ۱۳. جدول تقلب و خطاهای رایج -->
+        <section id="cheatsheet" class="doc-section">
+            <h3><span class="section-num">۱۳</span> جدول تقلب سریع (Cheat Sheet) و رفع خطاهای رایج</h3>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>هدف</th>
+                            <th>روش سنتی (find / find_all)</th>
+                            <th>روش انتخابگر CSS (select / select_one)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>یافتن تگ با ID</td>
+                            <td><code>soup.find(id="main")</code></td>
+                            <td><code>soup.select_one("#main")</code></td>
+                        </tr>
+                        <tr>
+                            <td>یافتن تگ با کلاس</td>
+                            <td><code>soup.find_all("div", class_="card")</code></td>
+                            <td><code>soup.select("div.card")</code></td>
+                        </tr>
+                        <tr>
+                            <td>یافتن لینک‌های دارای href</td>
+                            <td><code>soup.find_all("a", href=True)</code></td>
+                            <td><code>soup.select("a[href]")</code></td>
+                        </tr>
+                        <tr>
+                            <td>فرزند مستقیم</td>
+                            <td><code>tag.find_all("li", recursive=False)</code></td>
+                            <td><code>tag.select(":scope &gt; li")</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>۳ خطای بسیار رایج در کار با Beautiful Soup و راه‌حل آن‌ها:</h4>
+            <div class="alert alert-danger">
+                <strong>۱. خطای <code>AttributeError: 'NoneType' object has no attribute 'text'</code></strong><br>
+                این خطا زمانی رخ می‌دهد که متد <code>find()</code> یا <code>select_one()</code> تگ موردنظر را پیدا نکرده و <code>None</code> برگردانده است. همیشه قبل از فراخوانی <code>.text</code>، وجود تگ را با <code>if tag:</code> بررسی کنید.
+            </div>
+            <div class="alert alert-warning">
+                <strong>۲. خالی برگشتن لیست هنگام اسکرپ کردن سایت‌های مدرن (React / Vue / Angular)</strong><br>
+                اگر تگ‌ها را در Inspect مرورگر می‌بینید اما در خروجی BS4 وجود ندارند، یعنی محتوا با جاوااسکریپت (CSR) لود می‌شود. در این حالت ابتدا تب Network مرورگر (بخش Fetch/XHR) را بررسی کنید تا مستقیماً از API JSON سایت داده بگیرید، یا از ابزارهایی مثل <strong>Playwright</strong> و <strong>Selenium</strong> استفاده کنید.
+            </div>
+            <div class="alert alert-success">
+                <strong>۳. ارسال <code>response.content</code> به جای <code>response.text</code></strong><br>
+                بهتر است بایت‌های خام (<code>response.content</code>) را به <code>BeautifulSoup</code> بدهید تا موتور داخلی <code>UnicodeDammit</code> خودش بر اساس تگ <code>&lt;meta charset="..."&gt;</code> انکودینگ دقیق را تشخیص دهد.
+            </div>
+        </section>
+
+        <footer class="footer">
+            طراحی و تدوین شده به عنوان مرجع فارسی توسعه‌دهندگان پایتون — Beautiful Soup 4 Documentation
+        </footer>
+
+    </main>
+
+    <script>
+        // ۱. کپی کردن کدها
+        function copyCode(button) {
+            const pre = button.closest('.code-wrapper').querySelector('pre');
+            const text = pre.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'کپی شد! ✓';
+                button.style.background = '#10b981';
+                button.style.borderColor = '#10b981';
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = 'rgba(255, 255, 255, 0.1)';
+                    button.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                }, 2000);
+            });
+        }
+
+        // ۲. تغییر تم شب و روز (Dark / Light Mode)
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlEl = document.documentElement;
+        const savedTheme = localStorage.getItem('bs4_doc_theme') || 'light';
+        
+        htmlEl.setAttribute('data-theme', savedTheme);
+        themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlEl.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlEl.setAttribute('data-theme', newTheme);
+            localStorage.setItem('bs4_doc_theme', newTheme);
+            themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        });
+
+        // ۳. جستجوی زنده در سرفصل‌ها و محتوا
+        const searchInput = document.getElementById('searchInput');
+        const sections = document.querySelectorAll('.doc-section');
+        const navItems = document.querySelectorAll('#navList li');
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            sections.forEach((sec, idx) => {
+                const match = sec.innerText.toLowerCase().includes(query);
+                sec.style.display = match ? 'block' : 'none';
+                if (navItems[idx]) {
+                    navItems[idx].style.display = match ? 'block' : 'none';
+                }
+            });
+        });
+
+        // ۴. هایلایت خودکار منوی کناری هنگام اسکرول (ScrollSpy)
+        const navLinks = document.querySelectorAll('#navList a');
+        window.addEventListener('scroll', () => {
+            let currentId = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= sectionTop - 160) {
+                    currentId = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + currentId) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
