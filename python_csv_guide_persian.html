@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>راهنمای جامع کار با فایل‌های CSV در پایتون</title>
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-secondary: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border-color: #e2e8f0;
+            --accent-color: #059669;
+            --accent-hover: #047857;
+            --code-bg: #0f172a;
+            --code-text: #f8fafc;
+            --radius: 12px;
+            --font-family: 'Vazirmatn', 'Vazir', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-mono: 'Fira Code', 'Cascadia Code', Consolas, Monaco, monospace;
+        }
+
+        .dark {
+            --bg-primary: #030712;
+            --bg-card: #111827;
+            --bg-secondary: #1f2937;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
+            --accent-color: #10b981;
+            --accent-hover: #059669;
+            --code-bg: #030712;
+            --code-text: #f3f4f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            width: 100%;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--accent-color), #34d399);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .badge {
+            background-color: var(--bg-secondary);
+            color: var(--accent-color);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 6px;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--accent-color);
+        }
+
+        .btn-theme {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+
+        .hero {
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-main), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            max-width: 750px;
+            margin: 0 auto;
+            font-size: 1.05rem;
+        }
+
+        .playground-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 2rem 0 3rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        .playground-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .playground-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .playground-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 868px) {
+            .playground-grid {
+                grid-template-columns: 1fr;
+            }
+            nav {
+                display: none;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        textarea, select, input {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            outline: none;
+            direction: ltr;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 140px;
+            line-height: 1.4;
+        }
+
+        textarea:focus, select:focus {
+            border-color: var(--accent-color);
+        }
+
+        .preview-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            max-height: 250px;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .preview-table th {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 6px 10px;
+        }
+
+        .preview-table td {
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            margin-bottom: 1rem;
+        }
+
+        .code-box {
+            position: relative;
+            background-color: var(--code-bg);
+            border-radius: 8px;
+            padding: 1rem;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+        }
+
+        .code-box pre {
+            font-family: var(--font-mono);
+            color: var(--code-text);
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: background-color 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .table-container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow-x: auto;
+            margin-bottom: 3rem;
+        }
+
+        table.info-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        table.info-table th, table.info-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table.info-table th {
+            background-color: var(--bg-secondary);
+            font-weight: 700;
+        }
+
+        td.mono {
+            font-family: var(--font-mono);
+            direction: ltr;
+            text-align: right;
+            color: var(--accent-color);
+        }
+
+        footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            padding: 2rem 0;
+            text-align: center;
+            background-color: var(--bg-card);
+        }
+
+        .author-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-color);
+            font-weight: 700;
+            text-decoration: none;
+            direction: ltr;
+            font-family: var(--font-mono);
+            background-color: var(--bg-secondary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .author-link:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <div class="logo-area">
+                <div class="logo-icon">CSV</div>
+                <div class="logo-text">Python CSV</div>
+                <span class="badge">آموزش کاربردی</span>
+            </div>
+            <nav>
+                <a href="#playground">شبیه‌ساز</a>
+                <a href="#examples">کدهای نمونه</a>
+                <a href="#cheatsheet">پارامترها</a>
+            </nav>
+            <button class="btn-theme" id="themeToggle">
+                <span id="themeIcon">☀️</span>
+                <span id="themeText">تم روز</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="hero">
+            <h1>آموزش کامل کار با فایل‌های CSV در پایتون</h1>
+            <p>
+                فرمت CSV یکی از پرکاربردترین روش‌ها برای ذخیره و تبادل داده‌های ساختاریافته است. در این جزوه، روش‌های خواندن و نوشتن فایل‌های CSV با ماژول داخلی <code style="font-family: var(--font-mono); color: var(--accent-color);">csv</code> و کتابخانه قدرتمند <code style="font-family: var(--font-mono); color: var(--accent-color);">Pandas</code> را به شکل تعاملی فرامی‌گیرید.
+            </p>
+        </section>
+
+        <!-- Interactive Playground -->
+        <section id="playground" class="playground-card">
+            <div class="playground-header">
+                <div class="playground-title">
+                    <span>⚡</span> پردازشگر و شبیه‌ساز زنده CSV
+                </div>
+            </div>
+
+            <div class="playground-grid">
+                <div>
+                    <div class="form-group">
+                        <label>محتوای متنی CSV را وارد کنید:</label>
+                        <textarea id="csvInput" oninput="processCSV()">Name,Age,Role,City
+Ali,28,Developer,Tehran
+Sara,24,Designer,Shiraz
+Reza,32,DevOps,Isfahan
+Mina,29,Data Scientist,Tabriz</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>جداکننده (Delimiter):</label>
+                        <select id="delimiterSelect" onchange="processCSV()">
+                            <option value=",">کاما ( , )</option>
+                            <option value=";">سیمیکالن ( ; )</option>
+                            <option value="\t">تب ( Tab )</option>
+                            <option value="|">پایپ ( | )</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="margin-bottom: 6px; display: block;">پیش‌نمایش جدول پردازش‌شده:</label>
+                    <div class="preview-box" id="tablePreview">
+                        <!-- Table rendered here -->
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <label style="margin-bottom: 6px; display: block;">کد پایتون معادل برای خواندن این داده:</label>
+                        <div class="code-box">
+                            <pre><code id="generatedPythonCode">import csv
+
+with open('data.csv', mode='r', encoding='utf-8') as file:
+    reader = csv.reader(file, delimiter=',')
+    for row in reader:
+        print(row)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Code Examples -->
+        <section id="examples">
+            <h2 class="section-title">📖 نمونه کدهای پایتون</h2>
+            
+            <div class="grid-cards">
+                <!-- Example 1 -->
+                <div class="card">
+                    <div>
+                        <h3>۱. خواندن فایل CSV به صورت لیست</h3>
+                        <p>استفاده از <code>csv.reader</code> برای پیمایش خط به خط داده‌ها به شکل لیست.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code>import csv
+
+with open('data.csv', mode='r', encoding='utf-8') as file:
+    reader = csv.reader(file)
+    
+    header = next(reader)  # خواندن هدر
+    print("ستون‌ها:", header)
+    
+    for row in reader:
+        print(row)  # هر سطر یک لیست است</code></pre>
+                    </div>
+                </div>
+
+                <!-- Example 2 -->
+                <div class="card">
+                    <div>
+                        <h3>۲. خواندن فایل با DictReader</h3>
+                        <p>تبدیل هر سطر به یک دیکشنری با کلیدهای برگرفته از هدر جدول.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code>import csv
+
+with open('users.csv', mode='r', encoding='utf-8') as file:
+    reader = csv.DictReader(file)
+    
+    for row in reader:
+        print(f"نام: {row['Name']} | نقش: {row['Role']}")</code></pre>
+                    </div>
+                </div>
+
+                <!-- Example 3 -->
+                <div class="card">
+                    <div>
+                        <h3>۳. نوشتن در فایل CSV با writer</h3>
+                        <p>ذخیره داده‌های لیستی در فایل CSV با رعایت فرمت استاندارد.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code>import csv
+
+data = [
+    ['Name', 'Age', 'City'],
+    ['Ali', 28, 'Tehran'],
+    ['Sara', 24, 'Shiraz']
+]
+
+with open('output.csv', mode='w', newline='', encoding='utf-8') as file:
+    writer = csv.writer(file)
+    writer.writerows(data)</code></pre>
+                    </div>
+                </div>
+
+                <!-- Example 4 -->
+                <div class="card">
+                    <div>
+                        <h3>۴. نوشتن با DictWriter</h3>
+                        <p>ذخیره مجموعه‌ای از دیکشنری‌ها در فایل CSV همراه با تولید هدر.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code>import csv
+
+fieldnames = ['Name', 'Age', 'Role']
+users = [
+    {'Name': 'Ali', 'Age': 28, 'Role': 'Dev'},
+    {'Name': 'Sara', 'Age': 24, 'Role': 'UI/UX'}
+]
+
+with open('users_out.csv', mode='w', newline='', encoding='utf-8') as file:
+    writer = csv.DictWriter(file, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerows(users)</code></pre>
+                    </div>
+                </div>
+
+                <!-- Example 5 -->
+                <div class="card">
+                    <div>
+                        <h3>۵. کار با CSV در Pandas (حرفه‌ای)</h3>
+                        <p>سریع‌ترین و قدرتمندترین روش برای تحلیل و پردازش داده‌های CSV.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code>import pandas as pd
+
+# خواندن فایل
+df = pd.read_csv('data.csv')
+
+# فیلتر کردن
+filtered_df = df[df['Age'] > 25]
+
+# ذخیره در فایل جدید
+filtered_df.to_csv('filtered.csv', index=False, encoding='utf-8')</code></pre>
+                    </div>
+                </div>
+
+                <!-- Example 6 -->
+                <div class="card">
+                    <div>
+                        <h3>۶. تغییر جداکننده (Delimiter)</h3>
+                        <p>خوانش فایل‌هایی که با سیمیکالن (;) یا تب (\t) تفکیک شده‌اند.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code>import csv
+
+# خواندن فایل با جداکننده سیمیکالن
+with open('data_semicolon.csv', mode='r', encoding='utf-8') as file:
+    reader = csv.reader(file, delimiter=';')
+    for row in reader:
+        print(row)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Parameters Table -->
+        <section id="cheatsheet">
+            <h2 class="section-title">📊 جدول پارامترهای مهم ماژول csv</h2>
+            <div class="table-container">
+                <table class="info-table">
+                    <thead>
+                        <tr>
+                            <th>پارامتر</th>
+                            <th>مقدار پیش‌فرض</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="mono">delimiter</td>
+                            <td class="mono">','</td>
+                            <td>کاراکتر جداکننده ستون‌ها (مانند کاما، سیمیکالن یا تب).</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">quotechar</td>
+                            <td class="mono">'"'</td>
+                            <td>کاراکتر قرارگیری دور مقادیری که شامل جداکننده هستند.</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">quoting</td>
+                            <td class="mono">QUOTE_MINIMAL</td>
+                            <td>نحوه کوتیشن‌گذاری (QUOTE_ALL، QUOTE_NONNUMERIC و ...).</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">escapechar</td>
+                            <td class="mono">None</td>
+                            <td>کاراکتر اسکیپ برای نادیده گرفتن کاراکترهای خاص.</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">lineterminator</td>
+                            <td class="mono">'\r\n'</td>
+                            <td>کاراکتر پایان سطر هنگام نوشتن فایل.</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">skipinitialspace</td>
+                            <td class="mono">False</td>
+                            <td>حذف فضاهای خالی پس از جداکننده.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.9rem;">
+                جزوه آموزشی و شبیه‌ساز تعاملی کار با فایل‌های CSV در پایتون
+            </p>
+            <a href="https://github.com/raheblog" target="_blank" rel="noopener noreferrer" class="author-link">
+                ارائه توسط https://github.com/raheblog
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Toggle
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            themeIcon.textContent = isDark ? '☀️' : '🌙';
+            themeText.textContent = isDark ? 'تم روز' : 'تم شب';
+        });
+
+        // Copy Function
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling.querySelector('code');
+            const textToCopy = codeBlock.textContent;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                const origText = button.textContent;
+                button.textContent = 'کپی شد!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.textContent = origText;
+                    button.style.backgroundColor = '';
+                }, 2000);
+            } catch (err) {
+                console.error('کپی نشد', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Interactive CSV Processor
+        function processCSV() {
+            const csvText = document.getElementById('csvInput').value.trim();
+            let delimiter = document.getElementById('delimiterSelect').value;
+            if (delimiter === '\\t') delimiter = '\t';
+
+            const previewEl = document.getElementById('tablePreview');
+            const pythonCodeEl = document.getElementById('generatedPythonCode');
+
+            if (!csvText) {
+                previewEl.innerHTML = '<span style="color: #ef4444;">متن CSV خالی است.</span>';
+                return;
+            }
+
+            const lines = csvText.split('\n').filter(line => line.trim() !== '');
+            if (lines.length === 0) return;
+
+            let tableHTML = '<table class="preview-table"><thead><tr>';
+            const headers = lines[0].split(delimiter);
+            headers.forEach(h => {
+                tableHTML += `<th>${escapeHTML(h.trim())}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+
+            for (let i = 1; i < lines.length; i++) {
+                const cols = lines[i].split(delimiter);
+                tableHTML += '<tr>';
+                cols.forEach(c => {
+                    tableHTML += `<td>${escapeHTML(c.trim())}</td>`;
+                });
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</tbody></table>';
+
+            previewEl.innerHTML = tableHTML;
+
+            const delDisplay = delimiter === '\t' ? '\\t' : delimiter;
+            pythonCodeEl.textContent = `import csv\n\nwith open('data.csv', mode='r', encoding='utf-8') as file:\n    reader = csv.reader(file, delimiter='${delDisplay}')\n    for row in reader:\n        print(row)`;
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+
+        // Initialize on load
+        window.onload = processCSV;
+    </script>
+</body>
+</html>
