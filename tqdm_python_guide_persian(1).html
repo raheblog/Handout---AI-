@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>راهنمای جامع و تعاملی ماژول tqdm در پایتون</title>
+    <style>
+        /* CSS Reset & Variables */
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-secondary: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border-color: #e2e8f0;
+            --accent-color: #4f46e5;
+            --accent-hover: #4338ca;
+            --code-bg: #0f172a;
+            --code-text: #f8fafc;
+            --radius: 12px;
+            --font-family: 'Vazirmatn', 'Vazir', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-mono: 'Fira Code', 'Cascadia Code', Consolas, Monaco, monospace;
+        }
+
+        .dark {
+            --bg-primary: #030712;
+            --bg-card: #111827;
+            --bg-secondary: #1f2937;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
+            --accent-color: #6366f1;
+            --accent-hover: #4f46e5;
+            --code-bg: #030712;
+            --code-text: #f3f4f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Container & Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            width: 100%;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--accent-color), #818cf8);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .badge {
+            background-color: var(--bg-secondary);
+            color: var(--accent-color);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 6px;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--accent-color);
+        }
+
+        .btn-theme {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-main), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            font-size: 1.1rem;
+        }
+
+        /* Playground Section */
+        .playground-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        .playground-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .playground-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .btn-run {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-run:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-run:active {
+            transform: scale(0.98);
+        }
+
+        .playground-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 868px) {
+            .playground-grid {
+                grid-template-columns: 1fr;
+            }
+            nav {
+                display: none;
+            }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input, select {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            direction: ltr;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Virtual Terminal */
+        .terminal {
+            background-color: var(--code-bg);
+            border-radius: var(--radius);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            direction: ltr;
+            border: 1px solid var(--border-color);
+            min-height: 250px;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #f59e0b; }
+        .dot-green { background-color: #10b981; }
+
+        .terminal-body {
+            margin: 1.5rem 0;
+            white-space: nowrap;
+            overflow-x: auto;
+            color: #4ade80;
+            font-size: 0.85rem;
+        }
+
+        .terminal-code {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 0.8rem;
+            color: #93c5fd;
+            overflow-x: auto;
+        }
+
+        /* Color classes for simulation */
+        .color-green { color: #22c55e; }
+        .color-blue { color: #3b82f6; }
+        .color-magenta { color: #d946ef; }
+        .color-yellow { color: #eab308; }
+        .color-cyan { color: #06b6d4; }
+        .color-white { color: #f3f4f6; }
+
+        /* Content Sections & Code Boxes */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            margin-bottom: 1rem;
+        }
+
+        .code-box {
+            position: relative;
+            background-color: var(--code-bg);
+            border-radius: 8px;
+            padding: 1rem;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+        }
+
+        .code-box pre {
+            font-family: var(--font-mono);
+            color: var(--code-text);
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: background-color 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Table */
+        .table-container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow-x: auto;
+            margin-bottom: 3rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-secondary);
+            font-weight: 700;
+        }
+
+        td.mono {
+            font-family: var(--font-mono);
+            direction: ltr;
+            text-align: right;
+            color: var(--accent-color);
+        }
+
+        footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem 0;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background-color: var(--bg-card);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo-area">
+                <div class="logo-icon">&gt;</div>
+                <div class="logo-text">tqdm</div>
+                <span class="badge">راهنمای فارسی</span>
+            </div>
+            <nav>
+                <a href="#playground">شبیه‌ساز</a>
+                <a href="#examples">کدهای نمونه</a>
+                <a href="#cheatsheet">جدول پارامترها</a>
+            </nav>
+            <button class="btn-theme" id="themeToggle">
+                <span id="themeIcon">☀️</span>
+                <span id="themeText">تم روز</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Hero -->
+        <section class="hero">
+            <h1>آموزش جامع ماژول tqdm در پایتون</h1>
+            <p>
+                کتابخانه <code style="font-family: var(--font-mono); color: var(--accent-color);">tqdm</code> ابزاری فوق‌العاده سریع و سبک برای اضافه کردن نوار پیشرفت (Progress Bar) حرفه‌ای به حلقه‌ها و پردازش‌های طولانی در پایتون است.
+            </p>
+        </section>
+
+        <!-- Playground -->
+        <section id="playground" class="playground-card">
+            <div class="playground-header">
+                <div class="playground-title">
+                    <span>⚙️</span> شبیه‌ساز زنده (Interactive Playground)
+                </div>
+                <button class="btn-run" onclick="runSimulation()">
+                    <span>▶</span> اجرای شبیه‌سازی
+                </button>
+            </div>
+
+            <div class="playground-grid">
+                <!-- Control Form -->
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label>توضیحات (desc):</label>
+                        <input type="text" id="simDesc" value="Processing Data">
+                    </div>
+                    <div class="form-group">
+                        <label>تعداد کل (total):</label>
+                        <input type="number" id="simTotal" value="100" min="10" max="1000">
+                    </div>
+                    <div class="form-group">
+                        <label>تاخیر هر گام (ms):</label>
+                        <input type="number" id="simDelay" value="30" min="5" max="500">
+                    </div>
+                    <div class="form-group">
+                        <label>واحد (unit):</label>
+                        <input type="text" id="simUnit" value="it">
+                    </div>
+                    <div class="form-group">
+                        <label>عرض نوار (ncols):</label>
+                        <input type="number" id="simNcols" value="80" min="40" max="120">
+                    </div>
+                    <div class="form-group full">
+                        <label>رنگ نوار (colour):</label>
+                        <select id="simColor">
+                            <option value="green">green (سبز)</option>
+                            <option value="blue" selected>blue (آبی)</option>
+                            <option value="cyan">cyan (فیروزه‌ای)</option>
+                            <option value="magenta">magenta (ارغوانی)</option>
+                            <option value="yellow">yellow (زرد)</option>
+                            <option value="white">white (سفید)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Terminal Output -->
+                <div class="terminal">
+                    <div>
+                        <div class="terminal-header">
+                            <div class="dot dot-red"></div>
+                            <div class="dot dot-yellow"></div>
+                            <div class="dot dot-green"></div>
+                            <span style="font-size: 0.75rem; color: #6b7280; margin-left: 10px;">bash - python script.py</span>
+                        </div>
+                        <div class="terminal-body" id="terminalOutput">
+                            برای شروع روی دکمه «اجرای شبیه‌سازی» کلیک کنید...
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; color: #9ca3af; margin-bottom: 4px; direction: rtl;">کد پایتون معادل:</div>
+                        <div class="terminal-code" id="pythonCodePreview">
+                            for i in tqdm(range(100), desc="Processing Data"):
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Code Examples -->
+        <section id="examples">
+            <h2 class="section-title">📚 مثال‌های کاربردی</h2>
+            
+            <div class="grid-cards">
+                <!-- Card 1 -->
+                <div class="card">
+                    <div>
+                        <h3>۱. نصب و استفاده پایه</h3>
+                        <p>استفاده ساده در حلقه‌های for معمولی با پیچیدن حلقه دور tqdm یا استفاده از trange.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code># نصب: pip install tqdm
+
+from tqdm import tqdm, trange
+import time
+
+# روش اول
+for i in tqdm(range(100), desc="حلقه ساده"):
+    time.sleep(0.01)
+
+# روش دوم (جایگزین range)
+for i in trange(100, desc="با trange"):
+    time.sleep(0.01)</code></pre>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card">
+                    <div>
+                        <h3>۲. چاب عکس‌العمل با tqdm.write</h3>
+                        <p>برای چاپ پیام در ترمینال بدون خراب شدن نوار پیشرفت از write استفاده کنید.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code>from tqdm import tqdm
+import time
+
+for i in tqdm(range(10), desc="پردازش"):
+    time.sleep(0.1)
+    if i == 5:
+        tqdm.write(f"پیام ویژه در گام {i}")</code></pre>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card">
+                    <div>
+                        <h3>۳. به روزرسانی دستی (Manual Update)</h3>
+                        <p>مناسب برای دانلود فایل‌ها یا فرایندهایی که تعداد کل مشخصی دارند ولی حلقه نیستند.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code>from tqdm import tqdm
+import time
+
+with tqdm(total=1024, unit='B', unit_scale=True, desc="دانلود") as pbar:
+    for _ in range(10):
+        time.sleep(0.1)
+        pbar.update(102.4) # افزایش دستی</code></pre>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card">
+                    <div>
+                        <h3>۴. استفاده در Pandas</h3>
+                        <p>اضافه کردن نوار پیشرفت به متد apply روی DataFrame ها در پانداس.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code>import pandas as pd
+from tqdm import tqdm
+
+# فعال‌سازی روی پانداس
+tqdm.pandas(desc="پردازش داده‌ها")
+
+df = pd.DataFrame({"A": range(1000000)})
+# استفاده از progress_apply به جای apply
+df['B'] = df['A'].progress_apply(lambda x: x**2)</code></pre>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card">
+                    <div>
+                        <h3>۵. استفاده در Jupyter Notebook</h3>
+                        <p>نمایش نوار پیشرفت گرافیکی و شکیل HTML مخصوص محیط ژوپیتر نوت‌بوک.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code>from tqdm.notebook import tqdm
+import time
+
+for i in tqdm(range(100), desc="Notebook Progress"):
+    time.sleep(0.01)</code></pre>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="card">
+                    <div>
+                        <h3>۶. حلقه‌های تو در تو (Nested)</h3>
+                        <p>نمایش همزمان چندین نوار پیشرفت برای حلقه‌های داخلی و خارجی.</p>
+                    </div>
+                    <div class="code-box">
+                        <button class="btn-copy" onclick="copyCode(this)">کپی</button>
+                        <pre><code>from tqdm import trange
+import time
+
+for i in trange(3, desc="اپوک"):
+    for j in trange(50, desc="بچ‌ها", leave=False):
+        time.sleep(0.01)</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Parameters Table -->
+        <section id="cheatsheet">
+            <h2 class="section-title">📋 جدول پارامترهای اصلی tqdm</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>پارامتر</th>
+                            <th>نوع داده</th>
+                            <th>مقدار پیش‌فرض</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="mono">iterable</td>
+                            <td>Iterable</td>
+                            <td>None</td>
+                            <td>شیء قابل پیمایش اصلی (مانند range یا لیست).</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">desc</td>
+                            <td>str</td>
+                            <td>None</td>
+                            <td>متن توضیحی قبل از نوار پیشرفت.</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">total</td>
+                            <td>int/float</td>
+                            <td>None</td>
+                            <td>تعداد کل گام‌ها (اگر طول iterable مشخص نباشد).</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">unit</td>
+                            <td>str</td>
+                            <td>'it'</td>
+                            <td>واحد سنجش آیتم‌ها (مانند 'B' برای بایت یا 'file').</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">unit_scale</td>
+                            <td>bool/float</td>
+                            <td>False</td>
+                            <td>تبدیل مقادیر به پیشوندهای k, M, G (مثلاً ۱۰۰۰ بایت به 1k).</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">colour</td>
+                            <td>str</td>
+                            <td>None</td>
+                            <td>رنگ نوار پیشرفت (مثل 'green', 'blue', '#ff0000').</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">ncols</td>
+                            <td>int</td>
+                            <td>None</td>
+                            <td>عرض کل نوار در ترمینال بر حسب تعداد کاراکتر.</td>
+                        </tr>
+                        <tr>
+                            <td class="mono">leave</td>
+                            <td>bool</td>
+                            <td>True</td>
+                            <td>حفظ نوار در ترمینال پس از پایان فرایند.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            راهنمای استفاده از tqdm در پایتون — کاملا خودکفا و بدون وابستگی خارجی
+        </div>
+    </footer>
+
+    <!-- Logic JS -->
+    <script>
+        // Theme Switcher
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            themeIcon.textContent = isDark ? '☀️' : '🌙';
+            themeText.textContent = isDark ? 'تم روز' : 'تم شب';
+        });
+
+        // Copy Code Functionality
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling.querySelector('code');
+            const textToCopy = codeBlock.textContent;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                const origText = button.textContent;
+                button.textContent = 'کپی شد!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.textContent = origText;
+                    button.style.backgroundColor = '';
+                }, 2000);
+            } catch (err) {
+                console.error('کپی نشد', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Terminal Simulator Logic
+        let simInterval = null;
+
+        function runSimulation() {
+            if (simInterval) clearInterval(simInterval);
+
+            const desc = document.getElementById('simDesc').value.trim() || 'Processing';
+            const total = parseInt(document.getElementById('simTotal').value) || 100;
+            const delay = parseInt(document.getElementById('simDelay').value) || 30;
+            const unit = document.getElementById('simUnit').value.trim() || 'it';
+            const ncols = parseInt(document.getElementById('simNcols').value) || 80;
+            const color = document.getElementById('simColor').value;
+
+            const outputEl = document.getElementById('terminalOutput');
+            const codePreviewEl = document.getElementById('pythonCodePreview');
+
+            // Update Code Preview
+            codePreviewEl.textContent = `from tqdm import tqdm\nimport time\n\nfor i in tqdm(range(${total}), desc="${desc}", unit="${unit}", colour="${color}", ncols=${ncols}):\n    time.sleep(${delay/1000})`;
+
+            let current = 0;
+            const startTime = Date.now();
+
+            simInterval = setInterval(() => {
+                current++;
+                const elapsedSec = (Date.now() - startTime) / 1000;
+                const percent = Math.floor((current / total) * 100);
+                const rate = elapsedSec > 0 ? (current / elapsedSec).toFixed(1) : '0.0';
+                const remainingSec = rate > 0 ? Math.ceil((total - current) / rate) : 0;
+
+                const fmtTime = (s) => {
+                    const m = Math.floor(s / 60).toString().padStart(2, '0');
+                    const sec = (s % 60).toString().padStart(2, '0');
+                    return `${m}:${sec}`;
+                };
+
+                // Build Progress Bar String
+                const barLength = Math.max(10, Math.floor(ncols / 5));
+                const filledLen = Math.round((barLength * current) / total);
+                const bar = '█'.repeat(filledLen) + ' '.repeat(Math.max(0, barLength - filledLen));
+
+                outputEl.innerHTML = `
+                    <span style="color: #f3f4f6;">${desc}:</span> 
+                    <span class="color-${color}">${percent}%</span>|
+                    <span class="color-${color}">${bar}</span>| 
+                    <span>${current}/${total}</span> 
+                    <span style="color: #9ca3af;">[${fmtTime(Math.floor(elapsedSec))}&lt;${fmtTime(remainingSec)}, ${rate}${unit}/s]</span>
+                `;
+
+                if (current >= total) {
+                    clearInterval(simInterval);
+                }
+            }, delay);
+        }
+    </script>
+</body>
+</html>
