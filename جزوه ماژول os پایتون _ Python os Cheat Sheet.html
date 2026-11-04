@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Python os Cheat Sheet | جزوه ماژول os</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#f4f8f7;--card:#fff;--tx:#18201e;--mut:#5f726d;--bd:#dfe9e6;--ac:#0f9d7a;--ac2:#2f6fed;--code:#eef4f2;--cx:#0b6b8a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1110;--card:#141c1b;--tx:#e6f0ee;--mut:#8fa6a0;--bd:#24312f;--code:#0a0f0e;--cx:#6fd3f0}}
+:root[data-theme="dark"]{--bg:#0b1110;--card:#141c1b;--tx:#e6f0ee;--mut:#8fa6a0;--bd:#24312f;--code:#0a0f0e;--cx:#6fd3f0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Vazirmatn,Tahoma,system-ui,sans-serif;line-height:1.7;transition:background .25s,color .25s}
+header{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;padding:28px 20px 70px;text-align:center}
+header h1{margin:0 0 6px;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800}
+header p{margin:0;opacity:.92}
+.tools{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.tools button{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:6px 16px;cursor:pointer;font:inherit;font-weight:600}
+.tools button:hover{background:rgba(255,255,255,.32)}
+main{max-width:1180px;margin:-44px auto 40px;padding:0 16px}
+.bar{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.tab{flex:1;min-width:110px;border:0;background:transparent;color:var(--mut);padding:10px;border-radius:10px;cursor:pointer;font:inherit;font-weight:700}
+.tab.on{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff}
+.bar input{flex:2;min-width:160px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;padding:9px 12px;font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;margin-top:18px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;overflow:hidden}
+.card h2{margin:0 0 10px;font-size:1.05rem;color:var(--ac);border-bottom:2px dashed var(--bd);padding-bottom:6px}
+.row{margin:10px 0}
+pre{direction:ltr;text-align:left;margin:0;background:var(--code);border-radius:8px;padding:7px 10px;font:600 .8rem 'JetBrains Mono',Consolas,monospace;color:var(--cx);overflow-x:auto;cursor:pointer;white-space:pre;border:1px solid transparent}
+pre:hover{border-color:var(--ac2)}
+.row small{display:block;color:var(--mut);font-size:.85rem;margin-top:2px}
+.none{text-align:center;color:var(--mut);padding:40px}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1 id="t"></h1><p id="s"></p>
+<div class="tools"><button id="th"></button><button id="lg"></button></div>
+</header>
+<main>
+<div class="bar" id="bar"></div>
+<div class="grid" id="g"></div>
+</main>
+<footer id="f"></footer>
+<script>
+const D={
+basic:[
+["Import &amp; system info¦ایمپورت و اطلاعات سیستم",["import os¦Import the module¦ایمپورت ماژول","os.name¦'posix' / 'nt' (Windows)¦نوع سیستم‌عامل","os.getcwd()¦Current working directory¦پوشه جاری","os.cpu_count()¦Number of CPU cores¦تعداد هسته‌های CPU","os.sep  os.linesep¦Path separator / newline¦جداکننده مسیر و خط جدید","os.getlogin()¦Logged-in user name¦نام کاربر"]],
+["Directories¦پوشه‌ها",["os.listdir('.')¦List folder contents¦لیست محتویات پوشه","os.mkdir('d')¦Create one folder¦ساخت یک پوشه","os.makedirs('a/b/c', exist_ok=True)¦Create nested folders¦ساخت پوشه‌های تودرتو","os.rmdir('d')¦Remove empty folder¦حذف پوشه خالی","os.chdir('path')¦Change directory¦تغییر پوشه جاری"]],
+["Files¦فایل‌ها",["os.remove('f.txt')¦Delete a file¦حذف فایل","os.rename('a.txt', 'b.txt')¦Rename / move¦تغییر نام یا جابه‌جایی","os.replace('a', 'b')¦Rename, overwrite if exists¦تغییر نام با بازنویسی","os.stat('f').st_size¦File size in bytes¦حجم فایل (بایت)"]],
+["os.path basics¦مبانی os.path",["os.path.join('a', 'b.txt')¦Build a path safely¦ساخت مسیر امن","os.path.exists(p)¦Does it exist?¦آیا وجود دارد؟","os.path.isfile(p)  os.path.isdir(p)¦File or folder?¦فایل است یا پوشه؟","os.path.basename(p)¦File name¦نام فایل","os.path.dirname(p)¦Parent folder¦پوشه والد","os.path.splitext('a.txt')¦('a', '.txt')¦جدا کردن پسوند","os.path.abspath('x')¦Absolute path¦مسیر مطلق"]],
+["Environment variables¦متغیرهای محیطی",["os.environ['HOME']¦Read (KeyError if missing)¦خواندن متغیر","os.environ.get('X', 'def')¦Read with default¦خواندن با مقدار پیش‌فرض","os.getenv('X')¦Same, returns None¦مشابه، برمی‌گرداند None","os.environ['X'] = '1'¦Set for this process¦تنظیم برای همین برنامه"]],
+["Run commands¦اجرای دستور",["os.system('ls')¦Run shell command¦اجرای دستور شل","os.system('cls' if os.name == 'nt' else 'clear')¦Clear the terminal¦پاک کردن ترمینال"]]
+],
+mid:[
+["Walking folders¦پیمایش پوشه‌ها",["for root, dirs, files in os.walk('.'):¦Recurse through a tree¦پیمایش بازگشتی درخت پوشه","with os.scandir('.') as it:¦Fast listing with metadata¦لیست سریع‌تر با متادیتا","for e in it: print(e.name, e.is_file())¦DirEntry info¦اطلاعات هر آیتم","[f for f in os.listdir() if f.endswith('.py')]¦Filter by extension¦فیلتر بر اساس پسوند"]],
+["More os.path¦os.path بیشتر",["os.path.getsize(p)¦Size in bytes¦حجم","os.path.getmtime(p)¦Last modified (timestamp)¦زمان آخرین تغییر","os.path.expanduser('~/docs')¦Expand ~ to home¦باز کردن ~ به مسیر خانه","os.path.normpath('a//b/../c')¦Clean up a path¦مرتب کردن مسیر","os.path.relpath(p, start)¦Relative path¦مسیر نسبی","os.path.realpath(p)¦Resolve symlinks¦مسیر واقعی","os.path.split(p)¦(dir, file)¦جدا کردن پوشه و فایل","os.path.dirname(os.path.abspath(__file__))¦Folder of this script¦پوشه همین اسکریپت"]],
+["Permissions¦مجوزها",["os.access(p, os.R_OK)¦Can I read? (W_OK, X_OK)¦بررسی دسترسی","os.chmod(p, 0o755)¦Change permissions¦تغییر مجوز","os.umask(0o022)¦Default permission mask¦ماسک پیش‌فرض"]],
+["Environment, deeper¦محیط پیشرفته‌تر",["os.environ.setdefault('X', '1')¦Set only if missing¦تنظیم فقط اگر نباشد","del os.environ['X']¦Remove variable¦حذف متغیر","env = os.environ.copy()¦Copy for subprocess¦کپی برای subprocess","os.get_exec_path()¦Directories in PATH¦مسیرهای PATH"]],
+["Process &amp; terminal info¦اطلاعات پردازه و ترمینال",["os.getpid()  os.getppid()¦Process / parent ID¦شناسه پردازه و والد","os.get_terminal_size()¦Columns and lines¦اندازه ترمینال","os.uname()¦OS details (Unix)¦جزئیات سیستم (یونیکس)","os.getloadavg()¦System load (Unix)¦بار سیستم"]],
+["Related helpers¦ابزارهای مرتبط",["shutil.copy(a, b)¦Copy file¦کپی فایل","shutil.copytree(a, b)¦Copy folder¦کپی پوشه","shutil.rmtree(d)¦Delete folder with contents¦حذف پوشه با محتویات","shutil.move(a, b)¦Move anywhere¦جابه‌جایی","tempfile.mkdtemp()¦Temporary folder¦پوشه موقت","pathlib.Path('a') / 'b'¦Modern alternative to os.path¦جایگزین مدرن"]]
+],
+adv:[
+["Low-level file descriptors¦فایل دیسکریپتور",["fd = os.open('f', os.O_RDWR | os.O_CREAT, 0o644)¦Open at OS level¦باز کردن در سطح سیستم‌عامل","os.write(fd, b'hi')  os.read(fd, 100)¦Raw I/O¦خواندن و نوشتن خام","os.fsync(fd)¦Force data to disk¦اجبار نوشتن روی دیسک","os.dup2(fd, 1)¦Redirect stdout¦هدایت خروجی","os.close(fd)¦Close¦بستن"]],
+["Pipes¦پایپ‌ها",["r, w = os.pipe()¦Create a pipe¦ساخت پایپ","os.set_blocking(r, False)¦Non-blocking read¦خواندن غیرمسدودکننده"]],
+["Processes (Unix)¦پردازه‌ها (یونیکس)",["pid = os.fork()¦Clone the process¦دوشاخه کردن پردازه","os.execvp('ls', ['ls', '-l'])¦Replace process image¦جایگزینی پردازه","os.waitpid(pid, 0)¦Wait for child¦انتظار برای فرزند","os.kill(pid, signal.SIGTERM)¦Send signal¦ارسال سیگنال","os._exit(0)¦Exit immediately, no cleanup¦خروج فوری بدون پاکسازی","os.nice(5)¦Lower priority¦کاهش اولویت"]],
+["Links &amp; metadata¦لینک‌ها و متادیتا",["os.symlink(src, dst)¦Symbolic link¦لینک نمادین","os.readlink(p)¦Link target¦مقصد لینک","os.link(src, dst)¦Hard link¦هاردلینک","os.lstat(p)¦Stat without following links¦stat بدون دنبال کردن لینک","os.utime(p, (atime, mtime))¦Set timestamps¦تنظیم زمان‌ها","os.path.islink(p)¦Is symlink?¦آیا لینک است؟"]],
+["Security &amp; randomness¦امنیت و تصادفی",["os.urandom(16)¦Cryptographic random bytes¦بایت تصادفی امن","os.path.commonpath([base, os.path.realpath(p)]) == base¦Block path traversal¦جلوگیری از path traversal","subprocess.run(['ls', d], check=True)¦Safer than os.system¦امن‌تر از os.system","os.fspath(p)¦Path-like to str¦تبدیل Path به رشته"]],
+["Scheduling &amp; CPU¦زمان‌بندی و CPU",["os.sched_getaffinity(0)¦Usable CPU cores (Linux)¦هسته‌های قابل استفاده","os.sched_setaffinity(0, {0, 1})¦Pin to cores¦محدود کردن به هسته‌ها","os.times()¦CPU time used¦زمان مصرف CPU"]],
+["Windows-only¦ویژه ویندوز",["os.startfile('doc.pdf')¦Open with default app¦باز کردن با برنامه پیش‌فرض","os.add_dll_directory(path)¦DLL search path¦مسیر جستجوی DLL"]],
+["Cross-platform tips¦نکات چندسکویی",["sys.platform¦'linux', 'win32', 'darwin'¦پلتفرم دقیق","os.path.join, never '/' or '\\\\'¦Let Python pick separator¦جداکننده را پایتون انتخاب کند","hasattr(os, 'fork')¦Feature detection¦بررسی وجود قابلیت"]]
+]};
+const T={en:{t:"Python os Module Cheat Sheet",s:"From basics to advanced. Click any code to copy it.",basic:"🟢 Basic",mid:"🟡 Intermediate",adv:"🔴 Advanced",q:"Search...",none:"No results",f:"Built for quick reference",day:"☀️ Day",night:"🌙 Night",lang:"فارسی"},
+fa:{t:"جزوه ماژول os در پایتون",s:"از مقدماتی تا حرفه‌ای. روی هر کد کلیک کنید تا کپی شود.",basic:"🟢 عمومی",mid:"🟡 متوسط",adv:"🔴 حرفه‌ای",q:"جستجو...",none:"نتیجه‌ای پیدا نشد",f:"برای مرور سریع",day:"☀️ روز",night:"🌙 شب",lang:"English"}};
+let lang="fa",lvl="basic",q="",R=document.documentElement;
+try{lang=localStorage.getItem("ol")||"fa";const th=localStorage.getItem("ot");if(th)R.dataset.theme=th}catch(e){}
+const dark=()=>R.dataset.theme?R.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+const $=i=>document.getElementById(i);
+function render(){
+const L=T[lang],i=lang==="fa"?1:0;
+R.lang=lang;R.dir=lang==="fa"?"rtl":"ltr";document.title=L.t;
+$("t").textContent=L.t;$("s").textContent=L.s;$("f").textContent=L.f;
+$("th").textContent=dark()?L.day:L.night;$("lg").textContent=L.lang;
+$("bar").innerHTML=["basic","mid","adv"].map(k=>`<button class="tab ${k===lvl?"on":""}" data-k="${k}">${L[k]}</button>`).join("")+`<input id="q" placeholder="${L.q}" value="${q.replace(/"/g,"&quot;")}">`;
+let h="";
+D[lvl].forEach(([ti,rows])=>{
+const rs=rows.map(r=>{const p=r.split("¦");return{c:p[0],d:p[1+i]}}).filter(r=>!q||(r.c+r.d).toLowerCase().includes(q.toLowerCase()));
+if(!rs.length)return;
+h+=`<section class="card"><h2>${ti.split("¦")[i]}</h2>`+rs.map(r=>`<div class="row"><pre title="copy">${r.c.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</pre><small>${r.d}</small></div>`).join("")+"</section>"});
+$("g").innerHTML=h||`<div class="none">${L.none}</div>`;
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{lvl=b.dataset.k;render()});
+const qi=$("q");qi.oninput=e=>{q=e.target.value;const p=qi.selectionStart;render();const n=$("q");n.focus();n.setSelectionRange(p,p)};
+document.querySelectorAll("pre").forEach(p=>p.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(p.textContent).catch(()=>{});p.style.outline="2px solid #2ea44f";setTimeout(()=>p.style.outline="",600)});
+}
+$("th").onclick=()=>{R.dataset.theme=dark()?"light":"dark";try{localStorage.setItem("ot",R.dataset.theme)}catch(e){}render()};
+$("lg").onclick=()=>{lang=lang==="fa"?"en":"fa";try{localStorage.setItem("ol",lang)}catch(e){}render()};
+render();
+</script>
+</body>
+</html>
