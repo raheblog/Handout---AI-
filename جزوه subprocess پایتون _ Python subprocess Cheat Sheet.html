@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Python subprocess Cheat Sheet | جزوه subprocess</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#faf6f3;--card:#fff;--tx:#241c18;--mut:#7a665d;--bd:#eee3dc;--ac:#f26b1d;--ac2:#b83280;--code:#f6efea;--cx:#a3361a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#120d0b;--card:#1c1411;--tx:#f2e8e3;--mut:#b39d92;--bd:#33251f;--code:#0e0907;--cx:#ffa77a}}
+:root[data-theme="dark"]{--bg:#120d0b;--card:#1c1411;--tx:#f2e8e3;--mut:#b39d92;--bd:#33251f;--code:#0e0907;--cx:#ffa77a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Vazirmatn,Tahoma,system-ui,sans-serif;line-height:1.7;transition:background .25s,color .25s}
+header{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;padding:28px 20px 70px;text-align:center}
+header h1{margin:0 0 6px;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800}
+header p{margin:0;opacity:.92}
+.tools{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.tools button{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:6px 16px;cursor:pointer;font:inherit;font-weight:600}
+.tools button:hover{background:rgba(255,255,255,.32)}
+main{max-width:1180px;margin:-44px auto 40px;padding:0 16px}
+.bar{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.tab{flex:1;min-width:110px;border:0;background:transparent;color:var(--mut);padding:10px;border-radius:10px;cursor:pointer;font:inherit;font-weight:700}
+.tab.on{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff}
+.bar input{flex:2;min-width:160px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;padding:9px 12px;font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;margin-top:18px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;overflow:hidden}
+.card h2{margin:0 0 10px;font-size:1.05rem;color:var(--ac);border-bottom:2px dashed var(--bd);padding-bottom:6px}
+.row{margin:10px 0}
+pre{direction:ltr;text-align:left;margin:0;background:var(--code);border-radius:8px;padding:7px 10px;font:600 .8rem 'JetBrains Mono',Consolas,monospace;color:var(--cx);overflow-x:auto;cursor:pointer;white-space:pre;border:1px solid transparent}
+pre:hover{border-color:var(--ac2)}
+.row small{display:block;color:var(--mut);font-size:.85rem;margin-top:2px}
+.none{text-align:center;color:var(--mut);padding:40px}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1 id="t"></h1><p id="s"></p>
+<div class="tools"><button id="th"></button><button id="lg"></button></div>
+</header>
+<main>
+<div class="bar" id="bar"></div>
+<div class="grid" id="g"></div>
+</main>
+<footer id="f"></footer>
+<script>
+const D={
+basic:[
+["Run a command¦اجرای دستور",["import subprocess¦Import the module¦ایمپورت ماژول","subprocess.run(['ls', '-l'])¦Run a program (list form, recommended)¦اجرای برنامه با لیست (توصیه‌شده)","subprocess.run('ls -l', shell=True)¦Run through the shell¦اجرا از طریق شل","r = subprocess.run(['ls'])¦Returns CompletedProcess¦بازگشت شیء CompletedProcess"]],
+["Capture output¦گرفتن خروجی",["r = subprocess.run(cmd, capture_output=True, text=True)¦Capture stdout and stderr as str¦گرفتن خروجی به صورت رشته","r.stdout¦Standard output¦خروجی استاندارد","r.stderr¦Error output¦خروجی خطا","r.returncode¦Exit code (0 = success)¦کد خروج (۰ یعنی موفق)"]],
+["Check for errors¦بررسی خطا",["subprocess.run(cmd, check=True)¦Raise if exit code != 0¦خطا در صورت کد خروج غیرصفر","except subprocess.CalledProcessError as e:¦Command failed¦دستور شکست خورد","e.returncode  e.stderr¦Failure details¦جزئیات خطا","except FileNotFoundError:¦Program not found¦برنامه پیدا نشد"]],
+["Arguments¦آرگومان‌ها",["['git', 'commit', '-m', 'msg']¦One list item per argument¦هر آرگومان یک عضو لیست","shlex.split('ls -l \"my dir\"')¦String to list safely¦تبدیل رشته به لیست","shlex.quote(user_input)¦Escape for shell¦امن‌سازی برای شل"]],
+["Quick helpers¦میانبرها",["subprocess.check_output(cmd, text=True)¦Return output, raise on error¦برگرداندن خروجی","subprocess.getoutput('ls')¦Output as string (shell)¦خروجی به صورت رشته","subprocess.call(cmd)¦Old style: returns exit code¦سبک قدیمی: کد خروج"]]
+],
+mid:[
+["Send input¦ارسال ورودی",["subprocess.run(['cat'], input='hello', text=True)¦Pipe text into stdin¦ارسال متن به stdin","subprocess.run(cmd, stdin=open('in.txt'))¦stdin from a file¦ورودی از فایل"]],
+["Timeout¦محدودیت زمان",["subprocess.run(cmd, timeout=5)¦Kill after 5 seconds¦توقف پس از ۵ ثانیه","except subprocess.TimeoutExpired:¦Handle timeout¦مدیریت تایم‌اوت"]],
+["Folder &amp; environment¦پوشه و محیط",["subprocess.run(cmd, cwd='/tmp')¦Run in another folder¦اجرا در پوشه دیگر","env = {**os.environ, 'DEBUG': '1'}¦Extend environment¦افزودن متغیر محیطی","subprocess.run(cmd, env=env)¦Use custom env¦استفاده از محیط سفارشی"]],
+["Redirect streams¦هدایت جریان‌ها",["stdout=subprocess.DEVNULL¦Discard output¦دور ریختن خروجی","stderr=subprocess.STDOUT¦Merge stderr into stdout¦ادغام خطا در خروجی","stdout=open('log.txt', 'w')¦Write output to file¦نوشتن خروجی در فایل","stdout=subprocess.PIPE¦Capture manually¦گرفتن دستی خروجی"]],
+["Text &amp; encoding¦متن و کدگذاری",["text=True¦Strings instead of bytes¦رشته به جای بایت","encoding='utf-8', errors='replace'¦Control decoding¦کنترل دیکد","r.stdout.splitlines()¦Lines list¦لیست خطوط"]],
+["Popen basics¦مبانی Popen",["p = subprocess.Popen(cmd, stdout=subprocess.PIPE, text=True)¦Start without waiting¦اجرا بدون انتظار","out, err = p.communicate()¦Wait and collect output¦انتظار و دریافت خروجی","p.wait()¦Wait for exit¦انتظار تا پایان","p.poll()¦None while still running¦None یعنی هنوز در حال اجراست","p.pid¦Process ID¦شناسه پردازه"]]
+],
+adv:[
+["Pipelines (a | b)¦زنجیره پایپ",["p1 = Popen(['ls'], stdout=PIPE)¦First command¦دستور اول","p2 = Popen(['grep', 'py'], stdin=p1.stdout, stdout=PIPE)¦Second reads from first¦دستور دوم از اول می‌خواند","p1.stdout.close()¦Let p1 get SIGPIPE¦اجازه SIGPIPE به p1","out = p2.communicate()[0]¦Final output¦خروجی نهایی"]],
+["Live streaming¦خروجی زنده",["p = Popen(cmd, stdout=PIPE, text=True, bufsize=1)¦Line-buffered¦بافر خطی","for line in p.stdout: print(line, end='')¦Read as it arrives¦خواندن لحظه‌ای","with Popen(cmd) as p:¦Context manager, auto cleanup¦مدیریت خودکار منابع"]],
+["Stop &amp; signals¦توقف و سیگنال",["p.terminate()¦Polite stop (SIGTERM)¦توقف نرم","p.kill()¦Force kill (SIGKILL)¦کشتن اجباری","p.send_signal(signal.SIGINT)¦Send any signal¦ارسال سیگنال دلخواه"]],
+["Process groups¦گروه پردازه",["Popen(cmd, start_new_session=True)¦New session (Unix)¦نشست جدید (یونیکس)","os.killpg(os.getpgid(p.pid), signal.SIGTERM)¦Kill child + grandchildren¦کشتن فرزند و نوه‌ها","creationflags=subprocess.CREATE_NEW_PROCESS_GROUP¦Windows equivalent¦معادل ویندوز"]],
+["Async¦ناهمگام",["proc = await asyncio.create_subprocess_exec('ls', stdout=PIPE)¦Non-blocking process¦پردازه غیرمسدودکننده","out, _ = await proc.communicate()¦Await output¦دریافت خروجی","await asyncio.wait_for(proc.wait(), 10)¦Async timeout¦تایم‌اوت ناهمگام"]],
+["Avoid deadlocks¦جلوگیری از بن‌بست",["p.communicate()  # not p.wait()¦Use with PIPE to avoid full-buffer hang¦با PIPE از پر شدن بافر جلوگیری می‌کند","stdout=DEVNULL¦If you ignore output¦اگر خروجی لازم نیست","threading.Thread(target=read, args=(p.stderr,))¦Read two pipes at once¦خواندن همزمان دو پایپ"]],
+["Security¦امنیت",["shell=True + user input = injection¦Never combine them¦هرگز ترکیب نکنید","subprocess.run(['grep', '--', pattern, f])¦Use -- before untrusted args¦استفاده از -- قبل از ورودی نامطمئن","shutil.which('git')¦Resolve full program path¦پیدا کردن مسیر کامل برنامه"]],
+["Advanced options¦گزینه‌های پیشرفته",["pass_fds=(fd,)¦Keep descriptors open in child¦نگه داشتن fd در فرزند","close_fds=True¦Close other descriptors (default)¦بستن بقیه fd ها","preexec_fn=fn¦Run before exec (Unix, risky)¦اجرا قبل از exec (پرخطر)","creationflags=subprocess.CREATE_NO_WINDOW¦Hide console (Windows)¦مخفی کردن کنسول (ویندوز)"]]
+]};
+const T={en:{t:"Python subprocess Cheat Sheet",s:"From basics to advanced. Click any code to copy it.",basic:"🟢 Basic",mid:"🟡 Intermediate",adv:"🔴 Advanced",q:"Search...",none:"No results",f:"Built for quick reference",day:"☀️ Day",night:"🌙 Night",lang:"فارسی"},
+fa:{t:"جزوه ماژول subprocess در پایتون",s:"از مقدماتی تا حرفه‌ای. روی هر کد کلیک کنید تا کپی شود.",basic:"🟢 عمومی",mid:"🟡 متوسط",adv:"🔴 حرفه‌ای",q:"جستجو...",none:"نتیجه‌ای پیدا نشد",f:"برای مرور سریع",day:"☀️ روز",night:"🌙 شب",lang:"English"}};
+let lang="fa",lvl="basic",q="",R=document.documentElement;
+try{lang=localStorage.getItem("pl")||"fa";const th=localStorage.getItem("pt");if(th)R.dataset.theme=th}catch(e){}
+const dark=()=>R.dataset.theme?R.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+const $=i=>document.getElementById(i);
+function render(){
+const L=T[lang],i=lang==="fa"?1:0;
+R.lang=lang;R.dir=lang==="fa"?"rtl":"ltr";document.title=L.t;
+$("t").textContent=L.t;$("s").textContent=L.s;$("f").textContent=L.f;
+$("th").textContent=dark()?L.day:L.night;$("lg").textContent=L.lang;
+$("bar").innerHTML=["basic","mid","adv"].map(k=>`<button class="tab ${k===lvl?"on":""}" data-k="${k}">${L[k]}</button>`).join("")+`<input id="q" placeholder="${L.q}" value="${q.replace(/"/g,"&quot;")}">`;
+let h="";
+D[lvl].forEach(([ti,rows])=>{
+const rs=rows.map(r=>{const p=r.split("¦");return{c:p[0],d:p[1+i]}}).filter(r=>!q||(r.c+r.d).toLowerCase().includes(q.toLowerCase()));
+if(!rs.length)return;
+h+=`<section class="card"><h2>${ti.split("¦")[i]}</h2>`+rs.map(r=>`<div class="row"><pre title="copy">${r.c.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</pre><small>${r.d}</small></div>`).join("")+"</section>"});
+$("g").innerHTML=h||`<div class="none">${L.none}</div>`;
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{lvl=b.dataset.k;render()});
+const qi=$("q");qi.oninput=e=>{q=e.target.value;const p=qi.selectionStart;render();const n=$("q");n.focus();n.setSelectionRange(p,p)};
+document.querySelectorAll("pre").forEach(p=>p.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(p.textContent).catch(()=>{});p.style.outline="2px solid #2ea44f";setTimeout(()=>p.style.outline="",600)});
+}
+$("th").onclick=()=>{R.dataset.theme=dark()?"light":"dark";try{localStorage.setItem("pt",R.dataset.theme)}catch(e){}render()};
+$("lg").onclick=()=>{lang=lang==="fa"?"en":"fa";try{localStorage.setItem("pl",lang)}catch(e){}render()};
+render();
+</script>
+</body>
+</html>
